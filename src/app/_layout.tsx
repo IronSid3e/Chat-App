@@ -1,17 +1,34 @@
-import '../../global.css'
-import { Stack } from 'expo-router'
+import "../../global.css";
+import { Stack } from "expo-router";
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import { useAuth } from "@clerk/clerk-expo";
+import { ActivityIndicator, StatusBar } from "react-native";
+
+function RootStack() {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return <ActivityIndicator />;
+  }
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!isSignedIn}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!!isSignedIn}>
+        <Stack.Screen name="(drawer)" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
-    const isAuthenticated = true;
-
-    return <Stack screenOptions={{headerShown: false}}>
-        <Stack.Protected guard ={!isAuthenticated}>
-            <Stack.Screen name='(auth)'/>
-        </Stack.Protected>
-
-        <Stack.Protected guard ={isAuthenticated}>
-            <Stack.Screen name='(drawer)'/>
-        </Stack.Protected>
-    
-    </Stack>
+  return (
+    <ClerkProvider tokenCache={tokenCache}>
+      <RootStack />
+      <StatusBar barStyle={"dark-content"} />
+    </ClerkProvider>
+  );
 }
