@@ -13,6 +13,8 @@ export default function MessageList() {
       renderItem={({ item }) => (
         <MessageListItem message={item} isOwnMessage={item.user.id === myId} />
       )}
+      inverted
+      showsVerticalScrollIndicator={false}
     />
   );
 }
