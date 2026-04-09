@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -23,7 +22,6 @@ export default function SignInPage() {
   const [pendingMfa, setPendingMfa] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 1. Giriş işlemini başlat
   const onSignInPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -37,20 +35,15 @@ export default function SignInPage() {
       const status = result.status as string;
 
       if (status === "complete") {
-        // Giriş başarılı, oturumu aktif et
         await setActive({ session: result.createdSessionId });
-
-        // DİKKAT: Unmatched Route hatası almamak için burayı klasör ismine göre ayarla
-        // Eğer klasörün adı (drawer) ise "/", eğer drawer ise "/drawer" yap.
         router.replace("/(drawer)");
       } else if (
         status === "needs_first_factor" ||
         status === "needs_second_factor"
       ) {
-        // Doğrulama kodu gönderilecek e-posta ID'sini bul
         const factor = result.supportedFirstFactors?.find(
           (f: any) => f.strategy === "email_code",
-        ) as any; // TypeScript hatasını aşmak için
+        ) as any;
 
         if (factor && factor.emailAddressId) {
           await signIn.prepareFirstFactor({
@@ -73,7 +66,6 @@ export default function SignInPage() {
     }
   };
 
-  // 2. Doğrulama Kodunu Onayla
   const onVerifyPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -86,8 +78,6 @@ export default function SignInPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-
-        // Aynı şekilde yönlendirmeyi klasör yapına uygun yap
         router.replace("/(drawer)");
       } else {
         console.log(result);
@@ -99,7 +89,6 @@ export default function SignInPage() {
     }
   };
 
-  // Eğer zaten giriş yapılmışsa, direkt içeri yönlendir
   if (isSignedIn) {
     router.replace("/(drawer)");
     return null;
@@ -108,18 +97,20 @@ export default function SignInPage() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      className="flex-1 bg-gray-50 justify-center p-5"
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>
+      <View className="bg-white p-6 rounded-[20px] shadow-lg shadow-black/10 elevation-md">
+        <Text className="text-[26px] font-extrabold mb-6 text-center text-gray-900">
           {pendingMfa ? "Doğrulama Gerekli" : "Giriş Yap"}
         </Text>
 
         {!pendingMfa ? (
           <>
-            <Text style={styles.label}>E-posta</Text>
+            <Text className="text-sm font-semibold text-gray-700 mb-1.5">
+              E-posta
+            </Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-xl p-3.5 text-base mb-4 bg-white"
               autoCapitalize="none"
               placeholder="email@adres.com"
               value={emailAddress}
@@ -127,9 +118,11 @@ export default function SignInPage() {
               keyboardType="email-address"
             />
 
-            <Text style={styles.label}>Şifre</Text>
+            <Text className="text-sm font-semibold text-gray-700 mb-1.5">
+              Şifre
+            </Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-xl p-3.5 text-base mb-4 bg-white"
               placeholder="Şifreniz"
               secureTextEntry
               value={password}
@@ -137,27 +130,26 @@ export default function SignInPage() {
             />
 
             <TouchableOpacity
-              style={[
-                styles.button,
-                (!emailAddress || !password || loading) && styles.disabled,
-              ]}
+              className={`bg-red-500 p-4 rounded-xl items-center mt-2 ${
+                !emailAddress || !password || loading ? "opacity-60" : ""
+              }`}
               onPress={onSignInPress}
               disabled={!emailAddress || !password || loading}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Devam Et</Text>
+                <Text className="text-white text-base font-bold">Devam Et</Text>
               )}
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text style={styles.subtitle}>
+            <Text className="text-center mb-5 text-gray-500 leading-5">
               E-postanıza gönderilen 6 haneli kodu girin.
             </Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-xl p-3.5 text-base mb-4 bg-white"
               placeholder="000000"
               keyboardType="numeric"
               value={code}
@@ -165,31 +157,35 @@ export default function SignInPage() {
             />
 
             <TouchableOpacity
-              style={[styles.button, (!code || loading) && styles.disabled]}
+              className={`bg-red-500 p-4 rounded-xl items-center mt-2 ${
+                !code || loading ? "opacity-60" : ""
+              }`}
               onPress={onVerifyPress}
               disabled={!code || loading}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Doğrula ve Bitir</Text>
+                <Text className="text-white text-base font-bold">
+                  Doğrula ve Bitir
+                </Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => setPendingMfa(false)}
-              style={styles.secondaryButton}
+              className="mt-4 items-center"
             >
-              <Text style={styles.secondaryButtonText}>Geri Dön</Text>
+              <Text className="text-gray-500 text-sm">Geri Dön</Text>
             </TouchableOpacity>
           </>
         )}
 
-        <View style={styles.footer}>
-          <Text>Hesabın yok mu? </Text>
+        <View className="flex-row justify-center mt-6">
+          <Text className="text-gray-700">Hesabın yok mu? </Text>
           <Link href="/sign-up" asChild>
             <TouchableOpacity>
-              <Text style={styles.link}>Kayıt Ol</Text>
+              <Text className="text-blue-500 font-bold">Kayıt Ol</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -197,82 +193,3 @@ export default function SignInPage() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-    justifyContent: "center",
-    padding: 20,
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 24,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "800",
-    marginBottom: 24,
-    textAlign: "center",
-    color: "#1a1a1a",
-  },
-  subtitle: {
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#666",
-    lineHeight: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#444",
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#e1e1e1",
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 16,
-    marginBottom: 16,
-    backgroundColor: "#fff",
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 16,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    marginTop: 15,
-    alignItems: "center",
-  },
-  secondaryButtonText: {
-    color: "#666",
-    fontSize: 14,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 25,
-  },
-  link: {
-    color: "#007AFF",
-    fontWeight: "bold",
-  },
-});

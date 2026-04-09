@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -23,7 +22,6 @@ export default function SignUpPage() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 1. Kayıt oluşturma ve kod gönderme
   const onSignUpPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -34,7 +32,6 @@ export default function SignUpPage() {
         password,
       });
 
-      // Doğrulama kodunu e-postaya gönder
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
       setPendingVerification(true);
@@ -45,7 +42,6 @@ export default function SignUpPage() {
     }
   };
 
-  // 2. Kodu doğrulama ve girişi tamamlama
   const onVerifyPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -74,27 +70,31 @@ export default function SignUpPage() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      className="flex-1 bg-gray-50 justify-center p-5"
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>
+      <View className="bg-white p-6 rounded-2xl shadow-lg shadow-black/10 elevation-md">
+        <Text className="text-2xl font-bold mb-5 text-center text-gray-800">
           {pendingVerification ? "Kodu Doğrula" : "Yeni Hesap Oluştur"}
         </Text>
 
         {!pendingVerification ? (
           <>
-            <Text style={styles.label}>E-posta</Text>
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              E-posta
+            </Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-lg p-3 text-base mb-4 bg-gray-50"
               autoCapitalize="none"
               placeholder="email@adres.com"
               value={emailAddress}
               onChangeText={setEmailAddress}
             />
 
-            <Text style={styles.label}>Şifre</Text>
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              Şifre
+            </Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-lg p-3 text-base mb-4 bg-gray-50"
               placeholder="Minimum 8 karakter"
               secureTextEntry
               value={password}
@@ -102,24 +102,26 @@ export default function SignUpPage() {
             />
 
             <TouchableOpacity
-              style={[styles.button, loading && styles.disabled]}
+              className={`bg-red-500 p-4 rounded-lg items-center mt-2.5 ${
+                loading ? "opacity-60" : ""
+              }`}
               onPress={onSignUpPress}
               disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Kayıt Ol</Text>
+                <Text className="text-white text-base font-bold">Kayıt Ol</Text>
               )}
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text style={styles.subtitle}>
+            <Text className="text-center mb-5 text-gray-500">
               E-postana gelen 6 haneli kodu gir.
             </Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-lg p-3 text-base mb-4 bg-gray-50"
               placeholder="000000"
               keyboardType="numeric"
               value={code}
@@ -127,24 +129,28 @@ export default function SignUpPage() {
             />
 
             <TouchableOpacity
-              style={[styles.button, loading && styles.disabled]}
+              className={`bg-red-500 p-4 rounded-lg items-center mt-2.5 ${
+                loading ? "opacity-60" : ""
+              }`}
               onPress={onVerifyPress}
               disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Doğrula ve Bitir</Text>
+                <Text className="text-white text-base font-bold">
+                  Doğrula ve Bitir
+                </Text>
               )}
             </TouchableOpacity>
           </>
         )}
 
-        <View style={styles.footer}>
-          <Text>Zaten bir hesabın var mı? </Text>
+        <View className="flex-row justify-center mt-5">
+          <Text className="text-gray-700">Zaten bir hesabın var mı? </Text>
           <Link href="/sign-in" asChild>
             <TouchableOpacity>
-              <Text style={styles.link}>Giriş Yap</Text>
+              <Text className="text-blue-500 font-bold">Giriş Yap</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -152,73 +158,3 @@ export default function SignUpPage() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    justifyContent: "center",
-    padding: 20,
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 24,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-    color: "#333",
-  },
-  subtitle: {
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#666",
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#444",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 16,
-    backgroundColor: "#fafafa",
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  link: {
-    color: "#007AFF",
-    fontWeight: "bold",
-  },
-});
