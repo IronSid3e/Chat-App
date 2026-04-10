@@ -5,6 +5,14 @@ export default function HomeLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="channel/[id]" />
+      <Stack.Screen
+        name="new/chat"
+        options={{
+          title: "New Chat",
+          animation: "slide_from_right",
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }
