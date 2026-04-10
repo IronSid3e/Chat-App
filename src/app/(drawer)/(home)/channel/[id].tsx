@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import channels from "@/data/channels";
 import messages from "@/data/messages";
 import MessageList from "@/components/MessageList";
+import MessageInput from "@/components/MessageInput";
 
 export default function ChannelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,6 +22,7 @@ export default function ChannelScreen() {
     <View className="flex-1 justify-center items-center">
       <Stack.Screen options={{ title: channel.name }} />
       <MessageList />
+      <MessageInput />
     </View>
   );
 }

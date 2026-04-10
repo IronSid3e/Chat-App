@@ -9,7 +9,7 @@ export default function MessageList() {
   return (
     <FlatList
       data={messages}
-      contentContainerClassName="p-4"
+      contentContainerClassName="p-3"
       renderItem={({ item }) => (
         <MessageListItem message={item} isOwnMessage={item.user.id === myId} />
       )}
