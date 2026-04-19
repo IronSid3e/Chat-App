@@ -18,6 +18,8 @@ export default function SignUpPage() {
 
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [code, setCode] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,6 +32,8 @@ export default function SignUpPage() {
       await signUp.create({
         emailAddress,
         password,
+        firstName,
+        lastName,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -88,6 +92,21 @@ export default function SignUpPage() {
               placeholder="email@adres.com"
               value={emailAddress}
               onChangeText={setEmailAddress}
+            />
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              Name
+            </Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-3 text-base mb-4 bg-gray-50"
+              placeholder="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+            />
+            <TextInput
+              className="border border-gray-300 rounded-lg p-3 text-base mb-4 bg-gray-50"
+              placeholder="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
             />
 
             <Text className="text-sm font-semibold text-gray-700 mb-2">
