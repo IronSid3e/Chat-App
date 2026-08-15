@@ -5,6 +5,10 @@ import { useAuth } from "@clerk/clerk-expo";
 import MessageList from "@/components/MessageList";
 import MessageInput, { PendingImage } from "@/components/MessageInput";
 import { useSupabase } from "@/providers/SupabaseProvider";
+import {
+  ensureNotificationPermissions,
+  setActiveChannel,
+} from "@/utils/notifications";
 import { Channel, Message } from "@/types";
 
 export default function ChannelScreen() {
@@ -16,6 +20,13 @@ export default function ChannelScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    setActiveChannel(id);
+    ensureNotificationPermissions();
+    return () => setActiveChannel(null);
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;

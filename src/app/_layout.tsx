@@ -6,6 +6,7 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { ActivityIndicator, View } from "react-native";
 import { useEffect } from "react";
 import SupabaseProvider from "@/providers/SupabaseProvider";
+import NotificationListener from "@/components/NotificationListener";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -39,10 +40,13 @@ function RootStack() {
 
   // <Stack.Protected> yerine normal Stack kullanıyoruz, korumayı useEffect yapıyor
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(drawer)" />
-    </Stack>
+    <>
+      <NotificationListener />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(drawer)" />
+      </Stack>
+    </>
   );
 }
 
