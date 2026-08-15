@@ -136,9 +136,11 @@ export default function ChannelScreen() {
 
         if (error) throw error;
 
-        setMessages((prev) =>
-          prev.map((m) => (m.id === tempId ? { ...data } : m)),
-        );
+        setMessages((prev) => {
+          const withoutTemp = prev.filter((m) => m.id !== tempId);
+          const withoutReal = withoutTemp.filter((m) => m.id !== data.id);
+          return [{ ...data }, ...withoutReal];
+        });
       } catch (e: any) {
         setMessages((prev) => prev.filter((m) => m.id !== tempId));
         throw e;

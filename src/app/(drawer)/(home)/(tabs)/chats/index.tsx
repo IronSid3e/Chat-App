@@ -6,8 +6,9 @@ import {
   Pressable,
   RefreshControl,
 } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
+import { useFocusEffect } from "expo-router";
 import ChannelListItem from "@/components/ChannelListItem";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { Channel, Message } from "@/types";
@@ -72,9 +73,11 @@ export default function ChannelListScreen() {
     }
   }, [supabase, userId]);
 
-  useEffect(() => {
-    loadChannels();
-  }, [loadChannels]);
+  useFocusEffect(
+    useCallback(() => {
+      loadChannels();
+    }, [loadChannels]),
+  );
 
   if (loading) {
     return (
