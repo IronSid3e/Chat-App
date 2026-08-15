@@ -38,7 +38,10 @@ export default function ChannelListItem({ channel }: ChannelListItemProps) {
 
           <View className="flex-row justify-between items-center">
             <Text className="text-sm text-gray-600 flex-1" numberOfLines={2}>
-              {channel.last_message?.content || "Henüz mesaj yok"}
+              {channel.last_message
+                ? channel.last_message.content ??
+                  (channel.last_message.image_url ? "Fotoğraf" : "Henüz mesaj yok")
+                : "Henüz mesaj yok"}
             </Text>
           </View>
         </View>

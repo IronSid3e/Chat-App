@@ -5,9 +5,11 @@ import {
   Text,
   View,
 } from "react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import MessageListItem from "./MessageListItem";
 import { Message } from "@/types";
+import { format, isToday, isYesterday } from "date-fns";
+import { tr } from "date-fns/locale";
 
 type MessageListProps = {
   messages: Message[];
@@ -16,6 +18,17 @@ type MessageListProps = {
   myUserId?: string | null;
   onRetry: () => void;
 };
+
+type Row =
+  | { type: "message"; message: Message }
+  | { type: "date"; day: string };
+
+function dayLabel(date: string): string {
+  const d = new Date(date);
+  if (isToday(d)) return "Bugün";
+  if (isYesterday(d)) return "Dün";
+  return format(d, "d MMMM yyyy", { locale: tr });
+}
 
 export default function MessageList({
   messages,
@@ -53,14 +66,41 @@ export default function MessageList({
     );
   }
 
+  const rows = useMemo<Row[]>(() => {
+    const result: Row[] = [];
+    let prevDay: string | null = null;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const day = dayLabel(messages[i].created_at);
+      if (day !== prevDay) {
+        result.push({ type: "date", day });
+        prevDay = day;
+      }
+      result.push({ type: "message", message: messages[i] });
+    }
+    return result.reverse();
+  }, [messages]);
+
   return (
     <FlatList
-      data={messages}
-      keyExtractor={(item) => item.id}
+      data={rows}
+      keyExtractor={(item) =>
+        item.type === "date" ? `d-${item.day}` : item.message.id
+      }
       contentContainerClassName="p-3"
-      renderItem={({ item }) => (
-        <MessageListItem message={item} isOwnMessage={item.sender_id === myUserId} />
-      )}
+      renderItem={({ item }) =>
+        item.type === "date" ? (
+          <View className="items-center my-3">
+            <Text className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+              {item.day}
+            </Text>
+          </View>
+        ) : (
+          <MessageListItem
+            message={item.message}
+            isOwnMessage={item.message.sender_id === myUserId}
+          />
+        )
+      }
       inverted
       showsVerticalScrollIndicator={false}
     />

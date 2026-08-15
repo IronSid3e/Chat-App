@@ -6,7 +6,7 @@ import {
   Pressable,
   RefreshControl,
 } from "react-native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { useFocusEffect } from "expo-router";
 import ChannelListItem from "@/components/ChannelListItem";
@@ -78,6 +78,21 @@ export default function ChannelListScreen() {
       loadChannels();
     }, [loadChannels]),
   );
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("channel-list")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        () => loadChannels(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, loadChannels]);
 
   if (loading) {
     return (
