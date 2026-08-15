@@ -13,7 +13,7 @@ export default function ChannelListItem({ channel }: ChannelListItemProps) {
     <Link href={`/channel/${channel.id}`} asChild>
       <Pressable className="flex-row items-center px-4 py-3 border-b border-gray-100">
         <Image
-          source={{ uri: channel.avatar }}
+          source={{ uri: channel.avatar_url ?? undefined }}
           className="w-14 h-14 rounded-full mr-4 bg-gray-200"
         />
 
@@ -26,18 +26,19 @@ export default function ChannelListItem({ channel }: ChannelListItemProps) {
               {channel.name}
             </Text>
 
-            {channel.lastMessage && (
+            {channel.last_message && (
               <Text className="text-xs text-gray-500">
-                {formatDistanceToNow(new Date(channel.lastMessage.createdAt), {
-                  addSuffix: true,
-                })}
+                {formatDistanceToNow(
+                  new Date(channel.last_message.created_at),
+                  { addSuffix: true },
+                )}
               </Text>
             )}
           </View>
 
           <View className="flex-row justify-between items-center">
             <Text className="text-sm text-gray-600 flex-1" numberOfLines={2}>
-              {channel.lastMessage?.content || "Henüz mesaj yok"}
+              {channel.last_message?.content || "Henüz mesaj yok"}
             </Text>
           </View>
         </View>

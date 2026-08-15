@@ -43,6 +43,26 @@ export default function SupabaseProvider({ children }: PropsWithChildren) {
       },
     });
     setSupabase(newClient);
+
+    if (session?.user) {
+      const user = session.user;
+      const profile = {
+        id: user.id,
+        first_name: user.firstName ?? "",
+        last_name: user.lastName ?? "",
+        full_name:
+          user.fullName ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+        avatar_url: user.imageUrl ?? null,
+      };
+      newClient
+        .from("profiles")
+        .upsert(profile, { onConflict: "id" })
+        .then(({ error }) => {
+          if (error) {
+            console.error("Profile sync failed:", error.message);
+          }
+        });
+    }
   }, [session]);
 
   return (

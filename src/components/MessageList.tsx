@@ -11,7 +11,7 @@ export default function MessageList() {
       data={messages}
       contentContainerClassName="p-3"
       renderItem={({ item }) => (
-        <MessageListItem message={item} isOwnMessage={item.user.id === myId} />
+        <MessageListItem message={item} isOwnMessage={item.sender_id === myId} />
       )}
       inverted
       showsVerticalScrollIndicator={false}

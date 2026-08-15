@@ -24,15 +24,17 @@ export default function MessageListItem({
             : "bg-gray-100 border border-gray-200 rounded-bl-none"
         }`}
       >
-        {message.image && (
+        {message.image_url && (
           <Image
-            source={{ uri: message.image }}
+            source={{ uri: message.image_url }}
             className="w-64 h-64 rounded-xl"
             resizeMode="cover"
           />
         )}
         {message.content && (
-          <View className={`px-2 py-1 ${message.image ? "mt-1" : ""}`}>
+          <View
+            className={`px-2 py-1 ${message.image_url ? "mt-1" : ""}`}
+          >
             <Text
               className={`text-base ${
                 isOwnMessage ? "text-white" : "text-gray-900"
