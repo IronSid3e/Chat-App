@@ -83,14 +83,15 @@ export default function MessageInput({ onSend }: MessageInputProps) {
 
   const handleSend = async () => {
     const text = message.trim();
-    if ((!text && !image) || sending) return;
+    const img = image;
+    if ((!text && !img) || sending) return;
 
+    setMessage("");
+    setImage(null);
+    pulseSend();
     setSending(true);
     try {
-      await onSend(text, image ?? undefined);
-      setMessage("");
-      setImage(null);
-      pulseSend();
+      await onSend(text, img ?? undefined);
     } catch (e: any) {
       Alert.alert("Gönderilemedi", e?.message ?? "Mesaj gönderilemedi.");
     } finally {
