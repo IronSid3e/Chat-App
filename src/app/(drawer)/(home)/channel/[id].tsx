@@ -1,9 +1,9 @@
-import { Alert, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import MessageList from "@/components/MessageList";
-import MessageInput from "@/components/MessageInput";
+import MessageInput, { PendingImage } from "@/components/MessageInput";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { Channel, Message } from "@/types";
 
@@ -86,7 +86,7 @@ export default function ChannelScreen() {
   }, [supabase, id, loadMessages]);
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, image?: PendingImage) => {
       if (!userId || !id) return;
 
       const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -94,31 +94,55 @@ export default function ChannelScreen() {
         id: tempId,
         channel_id: id,
         sender_id: userId,
-        content: text,
-        image_url: null,
+        content: text || null,
+        image_url: image?.uri ?? null,
         created_at: new Date().toISOString(),
         sender: null,
       };
       setMessages((prev) => [optimistic, ...prev]);
 
-      const { data, error } = await supabase
-        .from("messages")
-        .insert({
-          channel_id: id,
-          sender_id: userId,
-          content: text,
-        })
-        .select("id, channel_id, sender_id, content, image_url, created_at")
-        .single();
+      try {
+        let imageUrl: string | null = null;
+        if (image) {
+          const mimeType = image.mimeType ?? "image/jpeg";
+          const ext = mimeType.split("/")[1] || "jpg";
+          const path = `${userId}/${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}.${ext}`;
+          const arrayBuffer = await fetch(image.uri).then((r) =>
+            r.arrayBuffer(),
+          );
+          const { error: uploadError } = await supabase.storage
+            .from("message-images")
+            .upload(path, arrayBuffer, { contentType: mimeType });
 
-      if (error) {
+          if (uploadError) throw uploadError;
+
+          imageUrl = supabase.storage
+            .from("message-images")
+            .getPublicUrl(path).data.publicUrl;
+        }
+
+        const { data, error } = await supabase
+          .from("messages")
+          .insert({
+            channel_id: id,
+            sender_id: userId,
+            content: text || null,
+            image_url: imageUrl,
+          })
+          .select("id, channel_id, sender_id, content, image_url, created_at")
+          .single();
+
+        if (error) throw error;
+
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? { ...data } : m)),
+        );
+      } catch (e: any) {
         setMessages((prev) => prev.filter((m) => m.id !== tempId));
-        throw error;
+        throw e;
       }
-
-      setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? { ...data } : m)),
-      );
     },
     [supabase, userId, id],
   );

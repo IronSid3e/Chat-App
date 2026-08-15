@@ -12,13 +12,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import * as ImagePicker from "expo-image-picker";
 
+export type PendingImage = {
+  uri: string;
+  mimeType?: string;
+};
+
 type MessageInputProps = {
-  onSend: (text: string) => Promise<void>;
+  onSend: (text: string, image?: PendingImage) => Promise<void>;
 };
 
 export default function MessageInput({ onSend }: MessageInputProps) {
   const [message, setMessage] = useState("");
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<PendingImage | null>(null);
   const [sending, setSending] = useState(false);
 
   const pickImage = async () => {
@@ -41,17 +46,18 @@ export default function MessageInput({ onSend }: MessageInputProps) {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const asset = result.assets[0];
+      setImage({ uri: asset.uri, mimeType: asset.mimeType });
     }
   };
 
   const handleSend = async () => {
     const text = message.trim();
-    if (!text || sending) return;
+    if ((!text && !image) || sending) return;
 
     setSending(true);
     try {
-      await onSend(text);
+      await onSend(text, image ?? undefined);
       setMessage("");
       setImage(null);
     } catch (e: any) {
@@ -61,7 +67,7 @@ export default function MessageInput({ onSend }: MessageInputProps) {
     }
   };
 
-  const canSend = message.trim().length > 0 && !sending;
+  const canSend = (message.trim().length > 0 || image !== null) && !sending;
 
   return (
     <KeyboardAvoidingView
@@ -74,7 +80,7 @@ export default function MessageInput({ onSend }: MessageInputProps) {
         {image && (
           <View className="relative w-32 h-32 mb-1">
             <Image
-              source={{ uri: image }}
+              source={{ uri: image.uri }}
               className="w-full h-full rounded-lg"
             />
             <Pressable
