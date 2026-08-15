@@ -5,7 +5,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import MessageListItem from "./MessageListItem";
 import { Message } from "@/types";
 import { format, isToday, isYesterday } from "date-fns";
@@ -37,6 +37,25 @@ export default function MessageList({
   myUserId,
   onRetry,
 }: MessageListProps) {
+  const initialIds = useRef<Set<string> | null>(null);
+  if (initialIds.current === null) {
+    initialIds.current = new Set(messages.map((m) => m.id));
+  }
+
+  const rows = useMemo<Row[]>(() => {
+    const result: Row[] = [];
+    let prevDay: string | null = null;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const day = dayLabel(messages[i].created_at);
+      if (day !== prevDay) {
+        result.push({ type: "date", day });
+        prevDay = day;
+      }
+      result.push({ type: "message", message: messages[i] });
+    }
+    return result.reverse();
+  }, [messages]);
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -66,20 +85,6 @@ export default function MessageList({
     );
   }
 
-  const rows = useMemo<Row[]>(() => {
-    const result: Row[] = [];
-    let prevDay: string | null = null;
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const day = dayLabel(messages[i].created_at);
-      if (day !== prevDay) {
-        result.push({ type: "date", day });
-        prevDay = day;
-      }
-      result.push({ type: "message", message: messages[i] });
-    }
-    return result.reverse();
-  }, [messages]);
-
   return (
     <FlatList
       data={rows}
@@ -98,11 +103,14 @@ export default function MessageList({
           <MessageListItem
             message={item.message}
             isOwnMessage={item.message.sender_id === myUserId}
+            animateIn={!initialIds.current!.has(item.message.id)}
           />
         )
       }
       inverted
       showsVerticalScrollIndicator={false}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
     />
   );
 }

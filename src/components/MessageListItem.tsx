@@ -1,5 +1,5 @@
-import { View, Text, Image } from "react-native";
-import React from "react";
+import { View, Text, Image, Animated } from "react-native";
+import React, { useEffect, useRef } from "react";
 import { Message } from "@/types";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -7,15 +7,33 @@ import { tr } from "date-fns/locale";
 type MessageListItemProps = {
   message: Message;
   isOwnMessage?: boolean;
+  animateIn?: boolean;
 };
 
 export default function MessageListItem({
   message,
   isOwnMessage,
+  animateIn,
 }: MessageListItemProps) {
   const time = message.created_at
     ? format(new Date(message.created_at), "HH:mm")
     : "";
+
+  const progress = useRef(new Animated.Value(animateIn ? 0 : 1)).current;
+
+  useEffect(() => {
+    if (!animateIn) return;
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 260,
+      useNativeDriver: true,
+    }).start();
+  }, [animateIn, progress]);
+
+  const translateY = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [14, 0],
+  });
 
   return (
     <View
@@ -23,7 +41,10 @@ export default function MessageListItem({
         isOwnMessage ? "justify-end" : "justify-start"
       }`}
     >
-      <View className={`max-w-[80%] ${isOwnMessage ? "items-end" : "items-start"}`}>
+      <Animated.View
+        className={`max-w-[80%] ${isOwnMessage ? "items-end" : "items-start"}`}
+        style={{ opacity: progress, transform: [{ translateY }] }}
+      >
         <View
           className={`rounded-2xl p-2 shadow-sm ${
             isOwnMessage
@@ -57,7 +78,7 @@ export default function MessageListItem({
         >
           {time}
         </Text>
-      </View>
+      </Animated.View>
     </View>
   );
 }
