@@ -5,73 +5,25 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import React from "react";
 import MessageListItem from "./MessageListItem";
-import { useSupabase } from "@/providers/SupabaseProvider";
 import { Message } from "@/types";
 
 type MessageListProps = {
-  channelId: string;
+  messages: Message[];
+  loading: boolean;
+  error: string | null;
+  myUserId?: string | null;
+  onRetry: () => void;
 };
 
-export default function MessageList({ channelId }: MessageListProps) {
-  const supabase = useSupabase();
-  const { userId } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadMessages = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from("messages")
-        .select(
-          "id, channel_id, sender_id, content, image_url, created_at, sender:profiles(id, full_name, avatar_url)",
-        )
-        .eq("channel_id", channelId)
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-      setMessages(data ?? []);
-      setError(null);
-    } catch (e: any) {
-      setError(e?.message ?? "Mesajlar yüklenemedi.");
-    } finally {
-      setLoading(false);
-    }
-  }, [supabase, channelId]);
-
-  useEffect(() => {
-    setLoading(true);
-    loadMessages();
-
-    const channel = supabase
-      .channel(`messages:${channelId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `channel_id=eq.${channelId}`,
-        },
-        (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMessage.id)) return prev;
-            return [newMessage, ...prev];
-          });
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, channelId, loadMessages]);
-
+export default function MessageList({
+  messages,
+  loading,
+  error,
+  myUserId,
+  onRetry,
+}: MessageListProps) {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -84,12 +36,7 @@ export default function MessageList({ channelId }: MessageListProps) {
     return (
       <View className="flex-1 justify-center items-center px-6">
         <Text className="text-red-500 text-center mb-3">{error}</Text>
-        <Pressable
-          onPress={() => {
-            setLoading(true);
-            loadMessages();
-          }}
-        >
+        <Pressable onPress={onRetry}>
           <Text className="text-blue-500 font-semibold">Tekrar Dene</Text>
         </Pressable>
       </View>
@@ -112,10 +59,7 @@ export default function MessageList({ channelId }: MessageListProps) {
       keyExtractor={(item) => item.id}
       contentContainerClassName="p-3"
       renderItem={({ item }) => (
-        <MessageListItem
-          message={item}
-          isOwnMessage={item.sender_id === userId}
-        />
+        <MessageListItem message={item} isOwnMessage={item.sender_id === myUserId} />
       )}
       inverted
       showsVerticalScrollIndicator={false}

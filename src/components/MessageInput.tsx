@@ -12,9 +12,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import * as ImagePicker from "expo-image-picker";
 
-export default function MessageInput() {
+type MessageInputProps = {
+  onSend: (text: string) => Promise<void>;
+};
+
+export default function MessageInput({ onSend }: MessageInputProps) {
   const [message, setMessage] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
   const pickImage = async () => {
     const permissionResult =
@@ -40,13 +45,23 @@ export default function MessageInput() {
     }
   };
 
-  const handleSend = () => {
-    // store in db
-    setMessage("");
-    setImage(null);
+  const handleSend = async () => {
+    const text = message.trim();
+    if (!text || sending) return;
+
+    setSending(true);
+    try {
+      await onSend(text);
+      setMessage("");
+      setImage(null);
+    } catch (e: any) {
+      Alert.alert("Gönderilemedi", e?.message ?? "Mesaj gönderilemedi.");
+    } finally {
+      setSending(false);
+    }
   };
 
-  const canSend = message.trim().length > 0 || image !== null;
+  const canSend = message.trim().length > 0 && !sending;
 
   return (
     <KeyboardAvoidingView
