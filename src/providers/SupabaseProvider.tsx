@@ -3,6 +3,7 @@ import {
   PropsWithChildren,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
@@ -27,11 +28,13 @@ const SupabaseContext = createContext<SupabaseContextType>({
 });
 export default function SupabaseProvider({ children }: PropsWithChildren) {
   const { session } = useSession();
-  const [supabase, setSupabase] = useState<SupabaseClient<Database>>(
-    createClient<Database>(supabaseUrl, supabaseAnonKey),
-  );
+  const sessionRef = useRef(session);
   useEffect(() => {
-    const newClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    sessionRef.current = session;
+  }, [session]);
+
+  const [supabase] = useState<SupabaseClient<Database>>(() =>
+    createClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         ...(Platform.OS !== "web" ? { storage: AsyncStorage } : {}),
         autoRefreshToken: true,
@@ -40,31 +43,31 @@ export default function SupabaseProvider({ children }: PropsWithChildren) {
         lock: processLock,
       },
       async accessToken() {
-        return session?.getToken() ?? null;
+        return sessionRef.current?.getToken() ?? null;
       },
-    });
-    setSupabase(newClient);
+    }),
+  );
 
-    if (session?.user) {
-      const user = session.user;
-      const profile = {
-        id: user.id,
-        first_name: user.firstName ?? "",
-        last_name: user.lastName ?? "",
-        full_name:
-          user.fullName ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
-        avatar_url: user.imageUrl ?? null,
-      };
-      newClient
-        .from("profiles")
-        .upsert(profile, { onConflict: "id" })
-        .then(({ error }) => {
-          if (error) {
-            console.error("Profile sync failed:", error.message);
-          }
-        });
-    }
-  }, [session]);
+  useEffect(() => {
+    const user = session?.user;
+    if (!user) return;
+    const profile = {
+      id: user.id,
+      first_name: user.firstName ?? "",
+      last_name: user.lastName ?? "",
+      full_name:
+        user.fullName ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+      avatar_url: user.imageUrl ?? null,
+    };
+    supabase
+      .from("profiles")
+      .upsert(profile, { onConflict: "id" })
+      .then(({ error }) => {
+        if (error) {
+          console.error("Profile sync failed:", error.message);
+        }
+      });
+  }, [session, supabase]);
 
   return (
     <SupabaseContext.Provider value={{ supabase }}>

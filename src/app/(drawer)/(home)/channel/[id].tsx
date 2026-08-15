@@ -10,6 +10,7 @@ import {
   setActiveChannel,
 } from "@/utils/notifications";
 import { Channel, Message } from "@/types";
+import { withAuthRetry } from "@/utils/withRetry";
 
 export default function ChannelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -47,14 +48,16 @@ export default function ChannelScreen() {
   const loadMessages = useCallback(async () => {
     if (!id) return;
     try {
-      const { data, error } = await supabase
-        .from("messages")
-        .select(
-          "id, channel_id, sender_id, content, image_url, created_at, sender:profiles(id, full_name, avatar_url)",
-        )
-        .eq("channel_id", id)
-        .order("created_at", { ascending: false })
-        .limit(100);
+      const { data, error } = await withAuthRetry(() =>
+        supabase
+          .from("messages")
+          .select(
+            "id, channel_id, sender_id, content, image_url, created_at, sender:profiles(id, full_name, avatar_url)",
+          )
+          .eq("channel_id", id)
+          .order("created_at", { ascending: false })
+          .limit(100),
+      );
 
       if (error) throw error;
       setMessages(data ?? []);

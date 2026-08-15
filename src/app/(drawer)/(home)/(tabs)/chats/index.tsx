@@ -11,6 +11,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { useFocusEffect } from "expo-router";
 import ChannelListItem from "@/components/ChannelListItem";
 import { useSupabase } from "@/providers/SupabaseProvider";
+import { withAuthRetry } from "@/utils/withRetry";
 import { Channel, Message } from "@/types";
 
 type LastMessage = Pick<Message, "id" | "content" | "image_url" | "created_at">;
@@ -26,10 +27,12 @@ export default function ChannelListScreen() {
   const loadChannels = useCallback(async () => {
     if (!userId) return;
     try {
-      const { data: memberships, error: err1 } = await supabase
-        .from("channel_members")
-        .select("channels(*)")
-        .eq("user_id", userId);
+      const { data: memberships, error: err1 } = await withAuthRetry(() =>
+        supabase
+          .from("channel_members")
+          .select("channels(*)")
+          .eq("user_id", userId),
+      );
 
       if (err1) throw err1;
 
@@ -40,14 +43,16 @@ export default function ChannelListScreen() {
 
       let lastByChannel = new Map<string, LastMessage>();
       if (chans.length > 0) {
-        const { data: msgs, error: err2 } = await supabase
-          .from("messages")
-          .select("id, channel_id, content, image_url, created_at")
-          .in(
-            "channel_id",
-            chans.map((c) => c.id),
-          )
-          .order("created_at", { ascending: false });
+        const { data: msgs, error: err2 } = await withAuthRetry(() =>
+          supabase
+            .from("messages")
+            .select("id, channel_id, content, image_url, created_at")
+            .in(
+              "channel_id",
+              chans.map((c) => c.id),
+            )
+            .order("created_at", { ascending: false }),
+        );
 
         if (err2) throw err2;
 
