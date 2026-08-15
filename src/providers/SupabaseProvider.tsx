@@ -13,24 +13,25 @@ import {
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSession } from "@clerk/clerk-expo";
+import { Database } from "@/types/database";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
 type SupabaseContextType = {
-  supabase: SupabaseClient;
+  supabase: SupabaseClient<Database>;
 };
 
 const SupabaseContext = createContext<SupabaseContextType>({
-  supabase: createClient(supabaseUrl, supabaseAnonKey),
+  supabase: createClient<Database>(supabaseUrl, supabaseAnonKey),
 });
 export default function SupabaseProvider({ children }: PropsWithChildren) {
   const { session } = useSession();
-  const [supabase, setSupabase] = useState<SupabaseClient>(
-    createClient(supabaseUrl, supabaseAnonKey),
+  const [supabase, setSupabase] = useState<SupabaseClient<Database>>(
+    createClient<Database>(supabaseUrl, supabaseAnonKey),
   );
   useEffect(() => {
-    const newClient = createClient(supabaseUrl, supabaseAnonKey, {
+    const newClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         ...(Platform.OS !== "web" ? { storage: AsyncStorage } : {}),
         autoRefreshToken: true,
