@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   TextInput,
@@ -22,6 +22,12 @@ export default function SignInPage() {
   const [pendingMfa, setPendingMfa] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (isSignedIn) {
+      router.replace("/(drawer)/(home)/(tabs)/chats");
+    }
+  }, [isSignedIn, router]);
+
   const onSignInPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -36,7 +42,7 @@ export default function SignInPage() {
 
       if (status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.replace("/(drawer)");
+        router.replace("/(drawer)/(home)/(tabs)/chats");
       } else if (
         status === "needs_first_factor" ||
         status === "needs_second_factor"
@@ -78,7 +84,7 @@ export default function SignInPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.replace("/(drawer)");
+        router.replace("/(drawer)/(home)/(tabs)/chats");
       } else {
         console.log(result);
       }
@@ -88,11 +94,6 @@ export default function SignInPage() {
       setLoading(false);
     }
   };
-
-  if (isSignedIn) {
-    router.replace("/(drawer)");
-    return null;
-  }
 
   return (
     <KeyboardAvoidingView

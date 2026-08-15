@@ -19,8 +19,9 @@ function RootStack() {
     if (!isLoaded) return;
 
     const inAuthGroup = segments[0] === "(auth)";
+    const atRoot = (segments as string[]).length === 0;
 
-    if (isSignedIn && inAuthGroup) {
+    if (isSignedIn && (inAuthGroup || atRoot)) {
       // Burayı da klasörden tam dosyaya çevirdik
       router.replace("/(drawer)/(home)/(tabs)/chats");
     } else if (!isSignedIn && !inAuthGroup) {
