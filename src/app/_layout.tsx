@@ -5,11 +5,21 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { ActivityIndicator, View } from "react-native";
 import { useEffect } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from "@expo-google-fonts/inter";
 import SupabaseProvider from "@/providers/SupabaseProvider";
 import SettingsProvider from "@/providers/SettingsProvider";
 import NotificationListener from "@/components/NotificationListener";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+SplashScreen.preventAutoHideAsync();
 
 function RootStack() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -52,6 +62,23 @@ function RootStack() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <SettingsProvider>

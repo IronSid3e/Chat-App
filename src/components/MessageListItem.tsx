@@ -84,7 +84,7 @@ function MessageListItem({
           {message.content && (
             <View className={`px-2 py-1 ${message.image_url ? "mt-1" : ""}`}>
               <Text
-                className={`text-base ${
+                className={`text-base leading-7 ${
                   isOwnMessage ? "text-white" : "text-gray-900"
                 }`}
               >
@@ -94,7 +94,7 @@ function MessageListItem({
           )}
         </View>
         <Text
-          className={`text-[10px] text-gray-400 mt-1 ${
+          className={`text-[10px] leading-4 text-gray-400 mt-1 ${
             isOwnMessage ? "" : "pl-1"
           }`}
         >

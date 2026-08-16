@@ -71,7 +71,7 @@ export default function MessageList({
       if (item.type === "date") {
         return (
           <View className="items-center my-3">
-            <Text className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+            <Text className="text-xs leading-4 text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
               {item.day}
             </Text>
           </View>
@@ -103,9 +103,9 @@ export default function MessageList({
   if (error) {
     return (
       <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-red-500 text-center mb-3">{error}</Text>
+        <Text className="text-red-500 text-center leading-5 mb-3">{error}</Text>
         <Pressable onPress={onRetry}>
-          <Text className="text-blue-500 font-semibold">Tekrar Dene</Text>
+          <Text className="text-blue-500 font-semibold leading-5">Tekrar Dene</Text>
         </Pressable>
       </View>
     );
@@ -114,7 +114,7 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-gray-400 text-center">
+        <Text className="text-gray-400 text-center leading-5">
           Henüz mesaj yok. İlk mesajı sen yaz!
         </Text>
       </View>
