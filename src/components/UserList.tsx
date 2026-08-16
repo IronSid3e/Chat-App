@@ -1,11 +1,11 @@
 import {
   View,
-  Text,
   FlatList,
   ActivityIndicator,
   Alert,
   Pressable,
 } from "react-native";
+import Text from "./AppText";
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";

@@ -1,5 +1,6 @@
-import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
-import React from "react";
+import { ActivityIndicator, Image, Pressable, View } from "react-native";
+import React, { memo } from "react";
+import Text from "./AppText";
 import { User } from "@/types";
 
 type UserListItemProps = {
@@ -8,7 +9,7 @@ type UserListItemProps = {
   starting?: boolean;
 };
 
-export default function UserListItem({
+function UserListItem({
   user,
   onPress,
   starting,
@@ -43,3 +44,5 @@ export default function UserListItem({
     </Pressable>
   );
 }
+
+export default memo(UserListItem);

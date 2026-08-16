@@ -1,5 +1,6 @@
-import { Image, Text, View, Pressable } from "react-native";
-import React from "react";
+import { Image, View, Pressable } from "react-native";
+import React, { memo } from "react";
+import Text from "./AppText";
 import { Channel } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "expo-router";
@@ -8,7 +9,7 @@ type ChannelListItemProps = {
   channel: Channel;
 };
 
-export default function ChannelListItem({ channel }: ChannelListItemProps) {
+function ChannelListItem({ channel }: ChannelListItemProps) {
   return (
     <Link href={`/channel/${channel.id}`} asChild>
       <Pressable className="flex-row items-center px-4 py-3 border-b border-gray-100">
@@ -22,6 +23,7 @@ export default function ChannelListItem({ channel }: ChannelListItemProps) {
             <Text
               className="font-semibold text-base text-gray-900 flex-1 mr-2"
               numberOfLines={1}
+              ellipsizeMode="tail"
             >
               {channel.name}
             </Text>
@@ -37,7 +39,7 @@ export default function ChannelListItem({ channel }: ChannelListItemProps) {
           </View>
 
           <View className="flex-row justify-between items-center">
-            <Text className="text-sm text-gray-600 flex-1" numberOfLines={2}>
+            <Text className="text-sm text-gray-600 flex-1" numberOfLines={2} ellipsizeMode="tail">
               {channel.last_message
                 ? channel.last_message.content ??
                   (channel.last_message.image_url ? "Fotoğraf" : "Henüz mesaj yok")
@@ -49,3 +51,5 @@ export default function ChannelListItem({ channel }: ChannelListItemProps) {
     </Link>
   );
 }
+
+export default memo(ChannelListItem);

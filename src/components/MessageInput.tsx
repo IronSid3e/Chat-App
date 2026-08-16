@@ -12,6 +12,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import * as ImagePicker from "expo-image-picker";
+import { OWN_BUBBLE_COLORS, useSettings } from "@/providers/SettingsProvider";
+import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
 
 export type PendingImage = {
   uri: string;
@@ -23,6 +25,8 @@ type MessageInputProps = {
 };
 
 export default function MessageInput({ onSend }: MessageInputProps) {
+  const { settings } = useSettings();
+  const keyboardHeight = useKeyboardHeight();
   const [message, setMessage] = useState("");
   const [image, setImage] = useState<PendingImage | null>(null);
   const [sending, setSending] = useState(false);
@@ -55,7 +59,7 @@ export default function MessageInput({ onSend }: MessageInputProps) {
       mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.7,
     });
 
     if (!result.canceled) {
@@ -157,8 +161,9 @@ export default function MessageInput({ onSend }: MessageInputProps) {
             }).start()
           }
           disabled={!canSend}
+          style={canSend ? { backgroundColor: OWN_BUBBLE_COLORS[settings.ownBubbleColor] } : undefined}
           className={`${
-            canSend ? "bg-blue-500" : "bg-gray-200"
+            canSend ? "" : "bg-gray-200"
           } rounded-full p-2 w-11 h-11 justify-center items-center`}
         >
           <Animated.View style={{ transform: [{ scale: sendScale }] }}>
@@ -179,5 +184,5 @@ export default function MessageInput({ onSend }: MessageInputProps) {
       <KeyboardAvoidingView behavior="padding">{input}</KeyboardAvoidingView>
     );
   }
-  return input;
+  return <View style={{ paddingBottom: keyboardHeight }}>{input}</View>;
 }

@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   TextInput,
   ActivityIndicator,
   Pressable,
@@ -8,6 +7,7 @@ import {
   Image,
   Alert,
 } from "react-native";
+import Text from "@/components/AppText";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
@@ -213,6 +213,7 @@ export default function SearchScreen() {
                   <Text
                     className="text-sm text-gray-600 mt-0.5"
                     numberOfLines={2}
+                    ellipsizeMode="tail"
                   >
                     {item.message.content}
                   </Text>

@@ -2,10 +2,11 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  Text,
   View,
+  type ListRenderItemInfo,
 } from "react-native";
-import React, { useMemo, useRef } from "react";
+import Text from "./AppText";
+import React, { useCallback, useMemo, useRef } from "react";
 import MessageListItem from "./MessageListItem";
 import { Message } from "@/types";
 import { format, isToday, isYesterday } from "date-fns";
@@ -42,19 +43,54 @@ export default function MessageList({
     initialIds.current = new Set(messages.map((m) => m.id));
   }
 
+  const dayLabels = useRef<Map<string, string>>(new Map());
+
   const rows = useMemo<Row[]>(() => {
+    const labelCache = dayLabels.current;
     const result: Row[] = [];
     let prevDay: string | null = null;
     for (let i = messages.length - 1; i >= 0; i--) {
-      const day = dayLabel(messages[i].created_at);
-      if (day !== prevDay) {
-        result.push({ type: "date", day });
-        prevDay = day;
+      const createdAt = messages[i].created_at;
+      const dayKey = createdAt.slice(0, 10);
+      let label = labelCache.get(dayKey);
+      if (!label) {
+        label = dayLabel(createdAt);
+        labelCache.set(dayKey, label);
+      }
+      if (label !== prevDay) {
+        result.push({ type: "date", day: label });
+        prevDay = label;
       }
       result.push({ type: "message", message: messages[i] });
     }
     return result.reverse();
   }, [messages]);
+
+  const renderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<Row>) => {
+      if (item.type === "date") {
+        return (
+          <View className="items-center my-3">
+            <Text className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+              {item.day}
+            </Text>
+          </View>
+        );
+      }
+      return (
+        <MessageListItem
+          message={item.message}
+          isOwnMessage={item.message.sender_id === myUserId}
+          animateIn={
+            index === 0 &&
+            !initialIds.current!.has(item.message.id) &&
+            item.message.id !== undefined
+          }
+        />
+      );
+    },
+    [myUserId],
+  );
 
   if (loading) {
     return (
@@ -92,25 +128,15 @@ export default function MessageList({
         item.type === "date" ? `d-${item.day}` : item.message.id
       }
       contentContainerClassName="p-3"
-      renderItem={({ item }) =>
-        item.type === "date" ? (
-          <View className="items-center my-3">
-            <Text className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
-              {item.day}
-            </Text>
-          </View>
-        ) : (
-          <MessageListItem
-            message={item.message}
-            isOwnMessage={item.message.sender_id === myUserId}
-            animateIn={!initialIds.current!.has(item.message.id)}
-          />
-        )
-      }
+      renderItem={renderItem}
       inverted
       showsVerticalScrollIndicator={false}
       keyboardDismissMode="on-drag"
       keyboardShouldPersistTaps="handled"
+      initialNumToRender={20}
+      maxToRenderPerBatch={20}
+      windowSize={7}
+      updateCellsBatchingPeriod={50}
     />
   );
 }

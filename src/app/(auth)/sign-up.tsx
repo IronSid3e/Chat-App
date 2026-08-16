@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -8,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import Text from "@/components/AppText";
 import { useSignUp, useAuth } from "@clerk/clerk-expo";
 import { useRouter, Link } from "expo-router";
 

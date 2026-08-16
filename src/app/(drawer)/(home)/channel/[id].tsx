@@ -1,5 +1,6 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
+import Text from "@/components/AppText";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import MessageList from "@/components/MessageList";

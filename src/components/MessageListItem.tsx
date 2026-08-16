@@ -1,8 +1,15 @@
-import { View, Text, Image, Animated } from "react-native";
-import React, { useEffect, useRef } from "react";
+import { View, Animated } from "react-native";
+import { Image } from "expo-image";
+import Text from "./AppText";
+import React, { memo, useEffect, useRef } from "react";
 import { Message } from "@/types";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import {
+  OTHER_BUBBLE_COLORS,
+  OWN_BUBBLE_COLORS,
+  useSettings,
+} from "@/providers/SettingsProvider";
 
 type MessageListItemProps = {
   message: Message;
@@ -10,11 +17,19 @@ type MessageListItemProps = {
   animateIn?: boolean;
 };
 
-export default function MessageListItem({
+function transformedUri(uri: string): string {
+  if (!uri.includes("/object/public/")) return uri;
+  const sep = uri.includes("?") ? "&" : "?";
+  return `${uri}${sep}width=480&quality=70`;
+}
+
+function MessageListItem({
   message,
   isOwnMessage,
   animateIn,
 }: MessageListItemProps) {
+  const { settings } = useSettings();
+
   const time = message.created_at
     ? format(new Date(message.created_at), "HH:mm")
     : "";
@@ -48,15 +63,22 @@ export default function MessageListItem({
         <View
           className={`rounded-2xl p-2 shadow-sm ${
             isOwnMessage
-              ? "bg-blue-500 rounded-br-none"
-              : "bg-gray-100 border border-gray-200 rounded-bl-none"
+              ? "rounded-br-none"
+              : "border border-gray-200 rounded-bl-none"
           }`}
+          style={{
+            backgroundColor: isOwnMessage
+              ? OWN_BUBBLE_COLORS[settings.ownBubbleColor]
+              : OTHER_BUBBLE_COLORS[settings.otherBubbleColor],
+          }}
         >
           {message.image_url && (
             <Image
-              source={{ uri: message.image_url }}
-              className="w-64 h-64 rounded-xl"
-              resizeMode="cover"
+              source={{ uri: transformedUri(message.image_url) }}
+              style={{ width: 256, height: 256, borderRadius: 12 }}
+              contentFit="cover"
+              transition={150}
+              cachePolicy="memory-disk"
             />
           )}
           {message.content && (
@@ -82,3 +104,5 @@ export default function MessageListItem({
     </View>
   );
 }
+
+export default memo(MessageListItem);

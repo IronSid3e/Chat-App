@@ -6,6 +6,7 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { ActivityIndicator, View } from "react-native";
 import { useEffect } from "react";
 import SupabaseProvider from "@/providers/SupabaseProvider";
+import SettingsProvider from "@/providers/SettingsProvider";
 import NotificationListener from "@/components/NotificationListener";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -53,9 +54,11 @@ function RootStack() {
 export default function RootLayout() {
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <SupabaseProvider>
-        <RootStack />
-      </SupabaseProvider>
+      <SettingsProvider>
+        <SupabaseProvider>
+          <RootStack />
+        </SupabaseProvider>
+      </SettingsProvider>
     </ClerkProvider>
   );
 }

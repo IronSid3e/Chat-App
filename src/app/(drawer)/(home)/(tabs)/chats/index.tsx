@@ -1,11 +1,11 @@
 import {
   View,
   FlatList,
-  Text,
   ActivityIndicator,
   Pressable,
   RefreshControl,
 } from "react-native";
+import Text from "@/components/AppText";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { useFocusEffect } from "expo-router";
@@ -15,6 +15,8 @@ import { withAuthRetry } from "@/utils/withRetry";
 import { Channel, Message } from "@/types";
 
 type LastMessage = Pick<Message, "id" | "content" | "image_url" | "created_at">;
+
+type LastMessageRow = LastMessage & { channel_id: string };
 
 export default function ChannelListScreen() {
   const supabase = useSupabase();
@@ -44,22 +46,20 @@ export default function ChannelListScreen() {
       let lastByChannel = new Map<string, LastMessage>();
       if (chans.length > 0) {
         const { data: msgs, error: err2 } = await withAuthRetry(() =>
-          supabase
-            .from("messages")
-            .select("id, channel_id, content, image_url, created_at")
-            .in(
-              "channel_id",
-              chans.map((c) => c.id),
-            )
-            .order("created_at", { ascending: false }),
+          supabase.rpc("get_last_messages", {
+            p_channel_ids: chans.map((c) => c.id),
+          }),
         );
 
         if (err2) throw err2;
 
         for (const m of msgs ?? []) {
-          if (!lastByChannel.has(m.channel_id)) {
-            lastByChannel.set(m.channel_id, m);
-          }
+          lastByChannel.set(m.channel_id, {
+            id: m.id,
+            content: m.content,
+            image_url: m.image_url,
+            created_at: m.created_at,
+          });
         }
       }
 
@@ -90,14 +90,31 @@ export default function ChannelListScreen() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
-        () => loadChannels(),
+        (payload) => {
+          const msg = payload.new as LastMessageRow;
+          setChannels((prev) =>
+            prev.map((c) =>
+              c.id === msg.channel_id
+                ? {
+                    ...c,
+                    last_message: {
+                      id: msg.id,
+                      content: msg.content,
+                      image_url: msg.image_url,
+                      created_at: msg.created_at,
+                    },
+                  }
+                : c,
+            ),
+          );
+        },
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, loadChannels]);
+  }, [supabase]);
 
   if (loading) {
     return (

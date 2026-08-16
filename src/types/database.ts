@@ -145,6 +145,16 @@ export type Database = {
         Args: { target_channel_id: string };
         Returns: boolean;
       };
+      get_last_messages: {
+        Args: { p_channel_ids: string[] };
+        Returns: {
+          channel_id: string;
+          id: string;
+          content: string | null;
+          image_url: string | null;
+          created_at: string;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

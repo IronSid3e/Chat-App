@@ -11,7 +11,7 @@ export async function withAuthRetry<T>(
       const message = e?.message ?? String(e);
       const transient = TRANSIENT_ERROR_PATTERN.test(message);
       if (!transient || attempt >= retries) throw e;
-      await new Promise((resolve) => setTimeout(resolve, 1200 * (attempt + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
     }
   }
 }
