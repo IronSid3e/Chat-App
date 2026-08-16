@@ -245,7 +245,7 @@ export default function ChannelListScreen() {
 
   const searchBar = (
     <View className="px-4 pt-3">
-      <View className="flex-row items-center bg-white/15 rounded-3xl px-4 h-11 border border-white/20">
+      <View className="flex-row items-center bg-white/15 rounded-3xl px-4 h-12 border border-white/20">
         <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
         <TextInput
           className="flex-1 ml-2 text-white text-base"

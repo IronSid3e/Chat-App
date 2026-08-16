@@ -124,6 +124,7 @@ export default function StatusBar() {
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
+        contentContainerClassName="pl-4"
         data={[{ key: "__add__" }, ...statuses.map((s) => ({ key: s.user_id }))]}
         keyExtractor={(item) => item.key}
         renderItem={({ item }) => {

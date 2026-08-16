@@ -47,7 +47,13 @@ function TabButton({ onPress, active, tint, icon, label }: TabButtonProps) {
         style={[styles.tabInner, { transform: [{ scale }] }]}
       >
         {icon}
-        <Text style={[styles.label, { color: tint }]} numberOfLines={1}>
+        <Text
+          style={[
+            styles.label,
+            { color: active ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
+          ]}
+          numberOfLines={1}
+        >
           {label}
         </Text>
       </Animated.View>
@@ -62,7 +68,6 @@ export default function FloatingTabBar({
 }: BottomTabBarProps) {
   const { settings } = useSettings();
   const [c0, c1] = settings.gradientColors;
-  const accent = c1 ?? "#EA7B7B";
 
   return (
     <View style={styles.wrapper} pointerEvents="box-none">
@@ -80,7 +85,9 @@ export default function FloatingTabBar({
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const tint = isFocused ? accent : "rgba(255,255,255,0.5)";
+          const tint = isFocused
+            ? "#FFFFFF"
+            : "rgba(255,255,255,0.5)";
 
           const onPress = () => {
             const event = navigation.emit({

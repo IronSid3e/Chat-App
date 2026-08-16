@@ -6,6 +6,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import MessageList from "@/components/MessageList";
 import MessageInput, { PendingImage } from "@/components/MessageInput";
 import { useSupabase } from "@/providers/SupabaseProvider";
+import { getHeaderBandHeight } from "@/utils/headerHeight";
 import {
   ensureNotificationPermissions,
   setActiveChannel,
@@ -17,6 +18,7 @@ export default function ChannelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const supabase = useSupabase();
   const { userId } = useAuth();
+  const headerHeight = getHeaderBandHeight();
   const [channel, setChannel] = useState<Channel | null>(null);
   const [channelError, setChannelError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -181,7 +183,7 @@ export default function ChannelScreen() {
   }
 
   return (
-    <View className="flex-1">
+    <View style={{ flex: 1, paddingTop: headerHeight }}>
       <Stack.Screen options={{ title: channel.name }} />
       <MessageList
         messages={messages}
