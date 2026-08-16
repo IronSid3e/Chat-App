@@ -138,6 +138,35 @@ export type Database = {
           },
         ];
       };
+      statuses: {
+        Row: {
+          id: string;
+          user_id: string;
+          image_url: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          image_url: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          image_url?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "statuses_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {

@@ -108,7 +108,7 @@ export default function MessageInput({ onSend }: MessageInputProps) {
   const input = (
     <SafeAreaView
       edges={["bottom"]}
-      className="w-full bg-white p-3 gap-2 border-t border-gray-200"
+      className="w-full p-3 gap-2 border-t border-white/10"
     >
       {image && (
         <Animated.View
@@ -131,13 +131,14 @@ export default function MessageInput({ onSend }: MessageInputProps) {
       <View className="flex-row w-full gap-2 items-center">
         <Pressable
           onPress={pickImage}
-          className="bg-gray-200 rounded-full p-2 w-11 h-11 justify-center items-center"
+          className="bg-white/15 rounded-full p-2 w-11 h-11 justify-center items-center"
         >
-          <Feather name="image" size={22} color="gray" />
+          <Feather name="image" size={22} color="white" />
         </Pressable>
         <TextInput
-          className="bg-gray-100 flex-1 rounded-3xl px-4 py-3 text-gray-900 text-base max-h-[120px]"
+          className="bg-white/15 flex-1 rounded-3xl px-4 py-3 text-white text-base max-h-[120px]"
           placeholder="type something"
+          placeholderTextColor="rgba(255,255,255,0.5)"
           multiline
           value={message}
           onChangeText={setMessage}
@@ -163,14 +164,14 @@ export default function MessageInput({ onSend }: MessageInputProps) {
           disabled={!canSend}
           style={canSend ? { backgroundColor: OWN_BUBBLE_COLORS[settings.ownBubbleColor] } : undefined}
           className={`${
-            canSend ? "" : "bg-gray-200"
+            canSend ? "" : "bg-white/15"
           } rounded-full p-2 w-11 h-11 justify-center items-center`}
         >
           <Animated.View style={{ transform: [{ scale: sendScale }] }}>
             <Feather
               name="send"
               size={20}
-              color={`${canSend ? "white" : "gray"}`}
+              color={`${canSend ? "white" : "rgba(255,255,255,0.5)"}`}
               style={canSend ? { marginLeft: -2, marginTop: 2 } : {}}
             />
           </Animated.View>

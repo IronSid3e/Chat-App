@@ -181,7 +181,7 @@ export default function ChannelScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1">
       <Stack.Screen options={{ title: channel.name }} />
       <MessageList
         messages={messages}

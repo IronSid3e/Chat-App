@@ -16,6 +16,7 @@ import {
 import SupabaseProvider from "@/providers/SupabaseProvider";
 import SettingsProvider from "@/providers/SettingsProvider";
 import NotificationListener from "@/components/NotificationListener";
+import GradientBackground from "@/components/GradientBackground";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -43,8 +44,11 @@ function RootStack() {
 
   if (!isLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#ef4444" />
+      <View style={{ flex: 1, backgroundColor: "#1a0e1f" }}>
+        <GradientBackground />
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#EA7B7B" />
+        </View>
       </View>
     );
   }
@@ -53,10 +57,18 @@ function RootStack() {
   return (
     <>
       <NotificationListener />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(drawer)" />
-      </Stack>
+      <View style={{ flex: 1, backgroundColor: "#1a0e1f" }}>
+        <GradientBackground />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        >
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(drawer)" />
+        </Stack>
+      </View>
     </>
   );
 }

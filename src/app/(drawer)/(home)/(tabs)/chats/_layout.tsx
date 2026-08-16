@@ -3,12 +3,14 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function ChatLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ contentStyle: { backgroundColor: "transparent" } }}>
       <Stack.Screen
         name="index"
         options={({ navigation }) => ({
           title: "Chats",
           headerTransparent: true,
+          headerTintColor: "#ffffff",
+          headerTitleStyle: { color: "#ffffff" },
           headerLeft: () => (
             <Ionicons
               onPress={() => {
@@ -17,12 +19,12 @@ export default function ChatLayout() {
               name="menu-outline"
               size={28}
               className="px-1"
-              color="gray"
+              color="white"
             />
           ),
           headerRight: () => (
             <Link href={"/new/chat"} asChild>
-              <Ionicons name="add" size={28} className="px-1" color="gray" />
+              <Ionicons name="add" size={28} className="px-1" color="white" />
             </Link>
           ),
         })}

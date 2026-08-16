@@ -28,3 +28,11 @@ export type Message = {
 };
 
 export type User = Profile;
+
+export type Status = {
+  id: string;
+  user_id: string;
+  image_url: string;
+  created_at: string;
+  viewer: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+};

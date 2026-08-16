@@ -71,7 +71,7 @@ export default function MessageList({
       if (item.type === "date") {
         return (
           <View className="items-center my-3">
-            <Text className="text-xs leading-4 text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+            <Text className="text-xs leading-4 text-white/70 bg-white/15 px-3 py-1 rounded-full">
               {item.day}
             </Text>
           </View>
@@ -114,7 +114,7 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-gray-400 text-center leading-5">
+        <Text className="text-white/60 text-center leading-5">
           Henüz mesaj yok. İlk mesajı sen yaz!
         </Text>
       </View>

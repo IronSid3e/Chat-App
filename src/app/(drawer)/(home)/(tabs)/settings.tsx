@@ -11,7 +11,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Feather from "@expo/vector-icons/Feather";
 import Constants from "expo-constants";
+import { LinearGradient } from "expo-linear-gradient";
 import {
+  GRADIENT_PRESETS,
   OTHER_BUBBLE_COLORS,
   OWN_BUBBLE_COLORS,
   useSettings,
@@ -19,7 +21,7 @@ import {
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <Text className="px-5 mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <Text className="px-5 mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-white/50">
       {children}
     </Text>
   );
@@ -27,7 +29,7 @@ function SectionTitle({ children }: { children: ReactNode }) {
 
 function MenuCard({ children }: { children: ReactNode }) {
   return (
-    <View className="mx-4 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+    <View className="mx-4 bg-white/10 rounded-2xl overflow-hidden border border-white/10">
       {children}
     </View>
   );
@@ -45,32 +47,32 @@ function MenuItem({ icon, label, onPress, destructive, right }: MenuItemProps) {
   return (
     <Pressable
       onPress={onPress}
-      android_ripple={{ color: "#F3F4F6" }}
-      className="flex-row items-center px-4 py-3.5 active:bg-gray-50"
+      android_ripple={{ color: "rgba(255,255,255,0.1)" }}
+      className="flex-row items-center px-4 py-3.5 active:bg-white/10"
     >
       <View className="w-8 items-center justify-center">
         <Feather
           name={icon}
           size={20}
-          color={destructive ? "#EF4444" : "#6B7280"}
+          color={destructive ? "#EF4444" : "rgba(255,255,255,0.7)"}
         />
       </View>
       <Text
         className={`flex-1 ml-3 text-base ${
-          destructive ? "text-red-500 font-medium" : "text-gray-900"
+          destructive ? "text-red-400 font-medium" : "text-white"
         }`}
       >
         {label}
       </Text>
       {right ?? (
-        <Feather name="chevron-right" size={20} color="#D1D5DB" />
+        <Feather name="chevron-right" size={20} color="rgba(255,255,255,0.4)" />
       )}
     </Pressable>
   );
 }
 
 function Divider() {
-  return <View className="h-px bg-gray-100 ml-[60px]" />;
+  return <View className="h-px bg-white/10 ml-[60px]" />;
 }
 
 function isLightColor(hex: string): boolean {
@@ -96,7 +98,7 @@ function ColorPicker<T extends string>({
 }: ColorPickerProps<T>) {
   return (
     <View className="px-4 py-4">
-      <Text className="text-sm font-medium text-gray-900 mb-3">{title}</Text>
+      <Text className="text-sm font-medium text-white mb-3">{title}</Text>
       <View className="flex-row flex-wrap gap-2.5">
         {(Object.keys(colors) as T[]).map((key) => {
           const hex = colors[key];
@@ -106,7 +108,7 @@ function ColorPicker<T extends string>({
               key={key}
               onPress={() => onChange(key)}
               className={`w-10 h-10 rounded-full items-center justify-center border-2 ${
-                selected ? "border-gray-800" : "border-transparent"
+                selected ? "border-white" : "border-transparent"
               }`}
             >
               <View
@@ -159,34 +161,34 @@ export default function SettingsScreen() {
   const avatar = user?.imageUrl;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="px-5 pt-4 pb-3 bg-white border-b border-gray-100">
-        <Text className="text-2xl font-bold text-gray-900">Ayarlar</Text>
+    <SafeAreaView className="flex-1">
+      <View className="px-5 pt-4 pb-3">
+        <Text className="text-2xl font-bold text-white">Ayarlar</Text>
       </View>
 
       <ScrollView
         className="flex-1"
-        contentContainerClassName="pb-10"
+        contentContainerClassName="pb-28"
         showsVerticalScrollIndicator={false}
       >
-        <View className="mx-4 mt-5 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex-row items-center">
-          <View className="w-16 h-16 rounded-full bg-gray-200 items-center justify-center overflow-hidden">
+        <View className="mx-4 mt-5 p-4 bg-white/10 rounded-2xl border border-white/10 flex-row items-center">
+          <View className="w-16 h-16 rounded-full bg-white/20 items-center justify-center overflow-hidden">
             {avatar ? (
               <Image
                 source={{ uri: avatar }}
                 className="w-16 h-16 rounded-full"
               />
             ) : (
-              <Text className="text-2xl font-bold text-gray-600">
+              <Text className="text-2xl font-bold text-white">
                 {(user?.firstName ?? "?").charAt(0).toUpperCase()}
               </Text>
             )}
           </View>
           <View className="flex-1 ml-4">
-            <Text className="text-lg font-bold text-gray-900">
+            <Text className="text-lg font-bold text-white">
               {fullName || "Misafir"}
             </Text>
-            <Text className="text-sm text-gray-500 mt-0.5">
+            <Text className="text-sm text-white/60 mt-0.5">
               {email || "E-posta yok"}
             </Text>
           </View>
@@ -195,12 +197,12 @@ export default function SettingsScreen() {
         <SectionTitle>Sohbet</SectionTitle>
         <MenuCard>
           <View className="px-4 py-4">
-            <Text className="text-sm font-medium text-gray-900 mb-3">
+            <Text className="text-sm font-medium text-white mb-3">
               Mesaj Önizlemesi
             </Text>
             <View className="gap-2">
               <View
-                className="self-start max-w-[80%] rounded-2xl rounded-bl-none px-3.5 py-2 border border-gray-200"
+                className="self-start max-w-[80%] rounded-2xl rounded-bl-none px-3.5 py-2 border border-white/20"
                 style={{ backgroundColor: otherColor }}
               >
                 <Text className="text-gray-900">Selam, nasılsın?</Text>
@@ -229,6 +231,48 @@ export default function SettingsScreen() {
           />
         </MenuCard>
 
+        <SectionTitle>Tema Rengi</SectionTitle>
+        <MenuCard>
+          <View className="px-4 py-4">
+            <Text className="text-sm font-medium text-white mb-3">
+              Arka plan gradyanı
+            </Text>
+            <View className="flex-row flex-wrap gap-2.5">
+              {GRADIENT_PRESETS.map((preset) => {
+                const selected =
+                  settings.gradientColors.join(",") ===
+                  preset.colors.join(",");
+                return (
+                  <Pressable
+                    key={preset.name}
+                    onPress={() =>
+                      updateSettings({ gradientColors: preset.colors })
+                    }
+                    className="items-center"
+                  >
+                    <LinearGradient
+                      colors={preset.colors as [string, string, ...string[]]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      className="w-14 h-14 rounded-2xl items-center justify-center border-2"
+                      style={{
+                        borderColor: selected ? "#ffffff" : "transparent",
+                      }}
+                    >
+                      {selected && (
+                        <Feather name="check" size={20} color="#ffffff" />
+                      )}
+                    </LinearGradient>
+                    <Text className="text-xs text-white/60 mt-1.5">
+                      {preset.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        </MenuCard>
+
         <SectionTitle>Hesap</SectionTitle>
         <MenuCard>
           <MenuItem
@@ -250,19 +294,19 @@ export default function SettingsScreen() {
           <MenuItem
             icon="info"
             label="Sürüm"
-            right={<Text className="text-sm text-gray-500">1.0.0</Text>}
+            right={<Text className="text-sm text-white/60">1.0.0</Text>}
           />
           <Divider />
           <MenuItem
             icon="bell"
             label="Bildirimler"
             right={
-              <Text className="text-sm text-gray-500">Açık</Text>
+              <Text className="text-sm text-white/60">Açık</Text>
             }
           />
         </MenuCard>
 
-        <Text className="text-center text-xs text-gray-400 mt-8">
+        <Text className="text-center text-xs text-white/40 mt-8">
           ChatApp • {Constants.expoConfig?.version ?? "1.0.0"}
         </Text>
       </ScrollView>

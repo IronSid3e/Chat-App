@@ -98,33 +98,35 @@ export default function SignInPage() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-gray-50 justify-center p-5"
+      className="flex-1 justify-center p-5"
     >
-      <View className="bg-white p-6 rounded-[20px] shadow-lg shadow-black/10 elevation-md">
-        <Text className="text-[26px] font-extrabold mb-6 text-center text-gray-900">
+      <View className="bg-white/10 p-6 rounded-[20px] border border-white/15">
+        <Text className="text-[26px] font-extrabold mb-6 text-center text-white">
           {pendingMfa ? "Doğrulama Gerekli" : "Giriş Yap"}
         </Text>
 
         {!pendingMfa ? (
           <>
-            <Text className="text-sm font-semibold text-gray-700 mb-1.5">
+            <Text className="text-sm font-semibold text-white/80 mb-1.5">
               E-posta
             </Text>
             <TextInput
-              className="border border-gray-300 rounded-xl p-3.5 text-base mb-4 bg-white"
+              className="border border-white/20 rounded-xl p-3.5 text-base mb-4 bg-white/10 text-white"
               autoCapitalize="none"
               placeholder="email@adres.com"
+              placeholderTextColor="rgba(255,255,255,0.4)"
               value={emailAddress}
               onChangeText={setEmailAddress}
               keyboardType="email-address"
             />
 
-            <Text className="text-sm font-semibold text-gray-700 mb-1.5">
+            <Text className="text-sm font-semibold text-white/80 mb-1.5">
               Şifre
             </Text>
             <TextInput
-              className="border border-gray-300 rounded-xl p-3.5 text-base mb-4 bg-white"
+              className="border border-white/20 rounded-xl p-3.5 text-base mb-4 bg-white/10 text-white"
               placeholder="Şifreniz"
+              placeholderTextColor="rgba(255,255,255,0.4)"
               secureTextEntry
               value={password}
               onChangeText={setPassword}
@@ -146,12 +148,13 @@ export default function SignInPage() {
           </>
         ) : (
           <>
-            <Text className="text-center mb-5 text-gray-500 leading-5">
+            <Text className="text-center mb-5 text-white/60 leading-5">
               E-postanıza gönderilen 6 haneli kodu girin.
             </Text>
             <TextInput
-              className="border border-gray-300 rounded-xl p-3.5 text-base mb-4 bg-white"
+              className="border border-white/20 rounded-xl p-3.5 text-base mb-4 bg-white/10 text-white"
               placeholder="000000"
+              placeholderTextColor="rgba(255,255,255,0.4)"
               keyboardType="numeric"
               value={code}
               onChangeText={setCode}
@@ -183,10 +186,10 @@ export default function SignInPage() {
         )}
 
         <View className="flex-row justify-center mt-6">
-          <Text className="text-gray-700">Hesabın yok mu? </Text>
+          <Text className="text-white/70">Hesabın yok mu? </Text>
           <Link href="/sign-up" asChild>
             <TouchableOpacity>
-              <Text className="text-blue-500 font-bold">Kayıt Ol</Text>
+              <Text className="text-sky-400 font-bold">Kayıt Ol</Text>
             </TouchableOpacity>
           </Link>
         </View>

@@ -43,14 +43,26 @@ export const OTHER_BUBBLE_COLORS: Record<OtherBubbleColor, string> = {
   rose: "#FFE4E6",
 };
 
+export const DEFAULT_GRADIENT_COLORS = ["#3a1740", "#8a1f6b", "#1a0e1f"];
+
+export const GRADIENT_PRESETS: { name: string; colors: string[] }[] = [
+  { name: "Mor-Pembe", colors: ["#3a1740", "#8a1f6b", "#1a0e1f"] },
+  { name: "Mavi-Lacivert", colors: ["#0f2027", "#203a43", "#2c5364"] },
+  { name: "Turuncu-Kırmızı", colors: ["#ff512f", "#dd2476", "#4a0d2e"] },
+  { name: "Yeşil-Deniz", colors: ["#134e5e", "#71b280", "#0b3d3d"] },
+  { name: "Gece Mavisi", colors: ["#0f0c29", "#302b63", "#24243e"] },
+];
+
 export type AppSettings = {
   ownBubbleColor: OwnBubbleColor;
   otherBubbleColor: OtherBubbleColor;
+  gradientColors: string[];
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
   ownBubbleColor: "blue",
   otherBubbleColor: "slate",
+  gradientColors: DEFAULT_GRADIENT_COLORS,
 };
 
 const STORAGE_KEY = "chatapp.settings.v1";
@@ -73,7 +85,15 @@ export default function SettingsProvider({ children }: PropsWithChildren) {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => {
         if (raw) {
-          setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(raw) });
+          const parsed = JSON.parse(raw);
+          if (
+            !Array.isArray(parsed.gradientColors) ||
+            parsed.gradientColors.length < 2 ||
+            parsed.gradientColors.some((c: unknown) => typeof c !== "string")
+          ) {
+            parsed.gradientColors = DEFAULT_GRADIENT_COLORS;
+          }
+          setSettings({ ...DEFAULT_SETTINGS, ...parsed });
         }
       })
       .catch(() => {})
