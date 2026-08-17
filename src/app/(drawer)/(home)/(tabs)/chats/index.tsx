@@ -1,13 +1,10 @@
+import * as Sentry from "@sentry/react-native";
 import {
   View,
   FlatList,
-  ActivityIndicator,
   Pressable,
   RefreshControl,
-  TextInput,
   Keyboard,
-  SectionList,
-  Image,
   Alert,
 } from "react-native";
 import Text from "@/components/AppText";
@@ -15,32 +12,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { useFocusEffect, useRouter } from "expo-router";
 import ChannelListItem from "@/components/ChannelListItem";
+import ChannelListItemSkeleton from "@/components/ChannelListItemSkeleton";
+import SearchBar, { SearchFilter } from "@/components/search/SearchBar";
+import SearchResultsList, {
+  MessageResult,
+  SearchSection,
+} from "@/components/search/SearchResultsList";
 import StatusBar from "@/components/StatusBar";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { withAuthRetry } from "@/utils/withRetry";
 import { ensureDirectMessage } from "@/utils/dm";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { formatMessageTime } from "@/utils/formatMessageTime";
 import { Channel, Message, User } from "@/types";
 
 type LastMessage = Pick<Message, "id" | "content" | "image_url" | "created_at">;
 
 type LastMessageRow = LastMessage & { channel_id: string };
-
-type MessageResult = {
-  id: string;
-  channel_id: string;
-  content: string | null;
-  image_url: string | null;
-  created_at: string;
-  channel_name: string;
-};
-
-type Row =
-  | { type: "user"; user: User }
-  | { type: "message"; message: MessageResult };
-
-type SearchFilter = "all" | "users" | "messages";
 
 export default function ChannelListScreen() {
   const supabase = useSupabase();
@@ -103,6 +89,7 @@ export default function ChannelListScreen() {
       );
       setError(null);
     } catch (e: any) {
+      Sentry.captureException(e);
       setError(e?.message ?? "Kanallar yüklenemedi.");
     } finally {
       setLoading(false);
@@ -116,12 +103,24 @@ export default function ChannelListScreen() {
     }, [loadChannels]),
   );
 
+  const channelIdsKey = channels
+    .map((c) => c.id)
+    .sort()
+    .join(",");
+
   useEffect(() => {
+    if (channelIdsKey.length === 0) return;
+
     const channel = supabase
       .channel("channel-list")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `channel_id=in.(${channelIdsKey})`,
+        },
         (payload) => {
           const msg = payload.new as LastMessageRow;
           setChannels((prev) =>
@@ -146,7 +145,7 @@ export default function ChannelListScreen() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [supabase, channelIdsKey]);
 
   const runSearch = useCallback(
     async (q: string) => {
@@ -189,6 +188,7 @@ export default function ChannelListScreen() {
           })),
         );
       } catch (e: any) {
+        Sentry.captureException(e);
         console.error("Arama hatası:", e?.message);
       } finally {
         setSearching(false);
@@ -210,6 +210,7 @@ export default function ChannelListScreen() {
         const channelId = await ensureDirectMessage(supabase, userId, user);
         router.push(`/channel/${channelId}`);
       } catch (e: any) {
+        Sentry.captureException(e);
         Alert.alert("Sohbet başlatılamadı", e?.message ?? "Bir hata oluştu.");
       } finally {
         setStartingUserId(null);
@@ -220,8 +221,8 @@ export default function ChannelListScreen() {
 
   const hasQuery = query.trim().length > 0;
 
-  const sections = useMemo(() => {
-    const s: { title: string; data: Row[] }[] = [];
+  const sections = useMemo<SearchSection[]>(() => {
+    const s: SearchSection[] = [];
     if (filter !== "messages" && searchUsers.length > 0) {
       s.push({
         title: "Kullanıcılar",
@@ -243,121 +244,27 @@ export default function ChannelListScreen() {
     );
   };
 
-  const searchBar = (
-    <View className="px-4 pt-3">
-      <View className="flex-row items-center bg-white/15 rounded-3xl px-4 h-12 border border-white/20">
-        <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
-        <TextInput
-          className="flex-1 ml-2 text-white text-base"
-          placeholder="Kullanıcı veya mesaj ara"
-          placeholderTextColor="rgba(255,255,255,0.5)"
-          value={query}
-          onChangeText={setQuery}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        {searching && <ActivityIndicator size="small" color="#EA7B7B" />}
-        {query.length > 0 && (
-          <Pressable onPress={() => setQuery("")} hitSlop={8}>
-            <Ionicons
-              name="close-circle"
-              size={18}
-              color="rgba(255,255,255,0.6)"
-            />
-          </Pressable>
-        )}
-        <View className="w-px h-5 bg-white/20 mx-2" />
-        <Pressable onPress={cycleFilter} hitSlop={8}>
-          <Ionicons
-            name="filter"
-            size={20}
-            color={
-              filter === "all" ? "rgba(255,255,255,0.7)" : "#EA7B7B"
-            }
-          />
-        </Pressable>
-      </View>
-    </View>
-  );
-
-  const renderResultRow = ({ item }: { item: Row }) => {
-    if (item.type === "user") {
-      return (
-        <Pressable
-          onPress={() => startChat(item.user)}
-          className="flex-row items-center p-4 border-b border-white/10"
-        >
-          <View className="bg-white/20 w-12 h-12 items-center justify-center rounded-full">
-            {item.user.avatar_url ? (
-              <Image
-                source={{ uri: item.user.avatar_url }}
-                className="w-12 h-12 rounded-full"
-              />
-            ) : (
-              <Text className="font-bold text-2xl text-white">
-                {(item.user.first_name || "?").charAt(0).toUpperCase()}
-              </Text>
-            )}
-          </View>
-          <Text className="flex-1 ml-3 font-medium text-lg text-white">
-            {item.user.first_name} {item.user.last_name}
-          </Text>
-          {startingUserId === item.user.id && (
-            <ActivityIndicator size="small" color="#EA7B7B" />
-          )}
-        </Pressable>
-      );
-    }
-    return (
-      <Pressable
-        onPress={() => router.push(`/channel/${item.message.channel_id}`)}
-        className="flex-row items-center p-4 border-b border-white/10"
-      >
-        <View className="w-11 h-11 rounded-full bg-white/20 items-center justify-center">
-          <Ionicons name="chatbubble-outline" size={22} color="white" />
-        </View>
-        <View className="flex-1 ml-3">
-          <View className="flex-row justify-between items-center">
-            <Text className="text-sm font-medium text-white flex-1">
-              {item.message.channel_name}
-            </Text>
-            {item.message.created_at && (
-              <Text className="text-xs text-white/60">
-                {formatMessageTime(item.message.created_at)}
-              </Text>
-            )}
-          </View>
-          <Text
-            className="text-sm text-white/70 mt-0.5"
-            numberOfLines={2}
-            ellipsizeMode="tail"
-          >
-            {item.message.content}
-          </Text>
-        </View>
-      </Pressable>
-    );
-  };
-
   if (loading) {
     return (
-      <View className="flex-1 pt-24 justify-center items-center">
-        <ActivityIndicator size="large" color="#EA7B7B" />
+      <View className="flex-1 pt-24">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <ChannelListItemSkeleton key={i} />
+        ))}
       </View>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 pt-24 justify-center items-center px-6">
-        <Text className="text-red-400 text-center mb-4">{error}</Text>
+      <View className="flex-1 items-center justify-center px-6 pt-24">
+        <Text className="mb-4 text-center text-red-400">{error}</Text>
         <Pressable
           onPress={() => {
             setLoading(true);
             loadChannels();
           }}
         >
-          <Text className="text-white font-semibold">Tekrar Dene</Text>
+          <Text className="font-semibold text-white">Tekrar Dene</Text>
         </Pressable>
       </View>
     );
@@ -365,38 +272,29 @@ export default function ChannelListScreen() {
 
   return (
     <View className="flex-1 pt-24">
-      {searchBar}
+      <SearchBar
+        value={query}
+        onChangeText={setQuery}
+        searching={searching}
+        onClear={() => setQuery("")}
+        filter={filter}
+        onCycleFilter={cycleFilter}
+      />
       {hasQuery ? (
-        <SectionList
-          keyboardShouldPersistTaps="handled"
+        <SearchResultsList
           sections={sections}
-          keyExtractor={(row, index) =>
-            row.type === "user" ? `u-${row.user.id}` : `m-${row.message.id}`
-          }
-          renderSectionHeader={({ section }) => (
-            <Text className="px-4 pt-3 pb-1 text-xs font-semibold text-white/60 uppercase">
-              {section.title}
-            </Text>
-          )}
-          renderItem={renderResultRow}
-          ListEmptyComponent={
-            !searching ? (
-              <View className="flex-1 justify-center items-center px-6 pt-16">
-                <Text className="text-white/60 text-center">
-                  Sonuç bulunamadı
-                </Text>
-              </View>
-            ) : null
-          }
-          contentContainerClassName="pb-28"
+          searching={searching}
+          startingUserId={startingUserId}
+          onUserPress={startChat}
+          onMessagePress={(channelId) => router.push(`/channel/${channelId}`)}
         />
       ) : (
         <>
           <StatusBar />
           {channels.length === 0 ? (
-            <View className="flex-1 justify-center items-center px-6">
-              <Text className="text-white/70 text-lg">Henüz sohbetin yok</Text>
-              <Text className="text-white/50 mt-2 text-center">
+            <View className="flex-1 items-center justify-center px-6">
+              <Text className="text-lg text-white/70">Henüz sohbetin yok</Text>
+              <Text className="mt-2 text-center text-white/50">
                 Yeni sohbet başlatmak için menüdeki kullanıcılardan birini seç
               </Text>
             </View>

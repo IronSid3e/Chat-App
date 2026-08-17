@@ -1,0 +1,31 @@
+-- ============================================================
+-- ChatApp — Realtime replication for `messages`
+--
+-- Kanal listesi ekranındaki realtime subscription yalnızca
+-- kullanıcının üye olduğu kanalları dinler (client tarafında
+-- `channel_id=in.(...)` filtresi uygulanır). Bu filtrenin
+-- güvenlik anlamında gerçekten işe yaraması için Realtime
+-- yayınının RLS'ye tabi olması GEREKİR.
+--
+-- 1. messages tablosunu supabase_realtime publication'ına ekle:
+alter publication supabase_realtime add table public.messages;
+
+-- NOT: Tablo daha önce eklenmişse "table is already a member" hatası
+-- alırsınız; bu durumda bu satırı tekrar çalıştırmayın.
+--
+-- 2. RLS'nin Realtime'e de uygulandığından emin olun. Supabase'te
+-- Realtime postgres_changes abonelikleri, tablonun mevcut SELECT
+-- politikalarına göre filtrelenir (Realtime, RLS'yi bypass etmez).
+-- messages tablosunda kullanıcının yalnızca üyesi olduğu kanalların
+-- mesajlarını görebileceği bir SELECT policy'si zaten varsa ek bir
+-- işlem gerekmez. Kontrol: Dashboard > Database > Replication
+-- > messages tablosu açık, Replication rolüne SELECT yetkisi.
+--
+-- 3. Bu migration'ı uyguladıktan sonra:
+--    supabase db push
+--    (veya Dashboard üzerinden SQL Editor'da çalıştırın)
+--
+-- ÖNEMLİ GÜVENLİK NOTU: Client tarafındaki `channel_id=in.(...)`
+-- filtresi yalnızca trafiği azaltır; asıl erişim denetimi RLS
+-- SELECT politikalarıdır. Realtime RLS'i devre dışı bırakmayın.
+-- ============================================================

@@ -10,20 +10,10 @@ import React, {
 } from "react";
 
 export type OwnBubbleColor =
-  | "blue"
-  | "green"
-  | "purple"
-  | "red"
-  | "orange"
-  | "dark";
+  "blue" | "green" | "purple" | "red" | "orange" | "dark";
 
 export type OtherBubbleColor =
-  | "slate"
-  | "sky"
-  | "mint"
-  | "lilac"
-  | "peach"
-  | "rose";
+  "slate" | "sky" | "mint" | "lilac" | "peach" | "rose";
 
 export const OWN_BUBBLE_COLORS: Record<OwnBubbleColor, string> = {
   blue: "#3B82F6",

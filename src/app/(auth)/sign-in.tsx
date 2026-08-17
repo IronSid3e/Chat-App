@@ -100,18 +100,18 @@ export default function SignInPage() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 justify-center p-5"
     >
-      <View className="bg-white/10 p-6 rounded-[20px] border border-white/15">
-        <Text className="text-[26px] font-extrabold mb-6 text-center text-white">
+      <View className="rounded-[20px] border border-white/15 bg-white/10 p-6">
+        <Text className="mb-6 text-center text-[26px] font-extrabold text-white">
           {pendingMfa ? "Doğrulama Gerekli" : "Giriş Yap"}
         </Text>
 
         {!pendingMfa ? (
           <>
-            <Text className="text-sm font-semibold text-white/80 mb-1.5">
+            <Text className="mb-1.5 text-sm font-semibold text-white/80">
               E-posta
             </Text>
             <TextInput
-              className="border border-white/20 rounded-xl p-3.5 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-xl border border-white/20 bg-white/10 p-3.5 text-base text-white"
               autoCapitalize="none"
               placeholder="email@adres.com"
               placeholderTextColor="rgba(255,255,255,0.4)"
@@ -120,11 +120,11 @@ export default function SignInPage() {
               keyboardType="email-address"
             />
 
-            <Text className="text-sm font-semibold text-white/80 mb-1.5">
+            <Text className="mb-1.5 text-sm font-semibold text-white/80">
               Şifre
             </Text>
             <TextInput
-              className="border border-white/20 rounded-xl p-3.5 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-xl border border-white/20 bg-white/10 p-3.5 text-base text-white"
               placeholder="Şifreniz"
               placeholderTextColor="rgba(255,255,255,0.4)"
               secureTextEntry
@@ -133,7 +133,7 @@ export default function SignInPage() {
             />
 
             <TouchableOpacity
-              className={`bg-red-500 p-4 rounded-xl items-center mt-2 ${
+              className={`mt-2 items-center rounded-xl bg-red-500 p-4 ${
                 !emailAddress || !password || loading ? "opacity-60" : ""
               }`}
               onPress={onSignInPress}
@@ -142,17 +142,17 @@ export default function SignInPage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-white text-base font-bold">Devam Et</Text>
+                <Text className="text-base font-bold text-white">Devam Et</Text>
               )}
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text className="text-center mb-5 text-white/60 leading-5">
+            <Text className="mb-5 text-center leading-5 text-white/60">
               E-postanıza gönderilen 6 haneli kodu girin.
             </Text>
             <TextInput
-              className="border border-white/20 rounded-xl p-3.5 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-xl border border-white/20 bg-white/10 p-3.5 text-base text-white"
               placeholder="000000"
               placeholderTextColor="rgba(255,255,255,0.4)"
               keyboardType="numeric"
@@ -161,7 +161,7 @@ export default function SignInPage() {
             />
 
             <TouchableOpacity
-              className={`bg-red-500 p-4 rounded-xl items-center mt-2 ${
+              className={`mt-2 items-center rounded-xl bg-red-500 p-4 ${
                 !code || loading ? "opacity-60" : ""
               }`}
               onPress={onVerifyPress}
@@ -170,7 +170,7 @@ export default function SignInPage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-white text-base font-bold">
+                <Text className="text-base font-bold text-white">
                   Doğrula ve Bitir
                 </Text>
               )}
@@ -180,16 +180,16 @@ export default function SignInPage() {
               onPress={() => setPendingMfa(false)}
               className="mt-4 items-center"
             >
-              <Text className="text-gray-500 text-sm">Geri Dön</Text>
+              <Text className="text-sm text-gray-500">Geri Dön</Text>
             </TouchableOpacity>
           </>
         )}
 
-        <View className="flex-row justify-center mt-6">
+        <View className="mt-6 flex-row justify-center">
           <Text className="text-white/70">Hesabın yok mu? </Text>
           <Link href="/sign-up" asChild>
             <TouchableOpacity>
-              <Text className="text-sky-400 font-bold">Kayıt Ol</Text>
+              <Text className="font-bold text-sky-400">Kayıt Ol</Text>
             </TouchableOpacity>
           </Link>
         </View>

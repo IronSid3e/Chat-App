@@ -13,6 +13,8 @@ import {
 } from "@/utils/notifications";
 import { Channel, Message } from "@/types";
 import { withAuthRetry } from "@/utils/withRetry";
+import { compressImageForUpload } from "@/utils/image";
+import * as Sentry from "@sentry/react-native";
 
 export default function ChannelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,6 +26,9 @@ export default function ChannelScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [oldestLoadedAt, setOldestLoadedAt] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -59,18 +64,55 @@ export default function ChannelScreen() {
           )
           .eq("channel_id", id)
           .order("created_at", { ascending: false })
-          .limit(100),
+          .limit(30),
       );
 
       if (error) throw error;
-      setMessages(data ?? []);
+      const msgs = data ?? [];
+      setMessages(msgs);
+      setOldestLoadedAt(
+        msgs.length > 0 ? msgs[msgs.length - 1].created_at : null,
+      );
+      setHasMore(msgs.length === 30);
       setError(null);
     } catch (e: any) {
+      Sentry.captureException(e);
       setError(e?.message ?? "Mesajlar yüklenemedi.");
     } finally {
       setLoading(false);
     }
   }, [supabase, id]);
+
+  const loadOlderMessages = useCallback(async () => {
+    if (!id || !oldestLoadedAt || !hasMore || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data, error } = await withAuthRetry(() =>
+        supabase
+          .from("messages")
+          .select(
+            "id, channel_id, sender_id, content, image_url, created_at, sender:profiles(id, full_name, avatar_url)",
+          )
+          .eq("channel_id", id)
+          .lt("created_at", oldestLoadedAt)
+          .order("created_at", { ascending: false })
+          .limit(30),
+      );
+
+      if (error) throw error;
+      const older = data ?? [];
+      setMessages((prev) => [...prev, ...older]);
+      if (older.length > 0) {
+        setOldestLoadedAt(older[older.length - 1].created_at);
+      }
+      setHasMore(older.length === 30);
+    } catch (e: any) {
+      Sentry.captureException(e);
+      console.error("Eski mesajlar yüklenemedi:", e?.message);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [supabase, id, oldestLoadedAt, hasMore, loadingMore]);
 
   useEffect(() => {
     setLoading(true);
@@ -121,12 +163,16 @@ export default function ChannelScreen() {
       try {
         let imageUrl: string | null = null;
         if (image) {
-          const mimeType = image.mimeType ?? "image/jpeg";
+          const compressed = await compressImageForUpload(
+            image.uri,
+            image.mimeType,
+          );
+          const mimeType = compressed.mimeType;
           const ext = mimeType.split("/")[1] || "jpg";
           const path = `${userId}/${Date.now()}-${Math.random()
             .toString(36)
             .slice(2)}.${ext}`;
-          const arrayBuffer = await fetch(image.uri).then((r) =>
+          const arrayBuffer = await fetch(compressed.uri).then((r) =>
             r.arrayBuffer(),
           );
           const { error: uploadError } = await supabase.storage
@@ -135,9 +181,8 @@ export default function ChannelScreen() {
 
           if (uploadError) throw uploadError;
 
-          imageUrl = supabase.storage
-            .from("message-images")
-            .getPublicUrl(path).data.publicUrl;
+          imageUrl = supabase.storage.from("message-images").getPublicUrl(path)
+            .data.publicUrl;
         }
 
         const { data, error } = await supabase
@@ -168,15 +213,15 @@ export default function ChannelScreen() {
 
   if (channelError) {
     return (
-      <View className="flex-1 justify-center items-center p-6">
-        <Text className="text-red-500 text-center">{channelError}</Text>
+      <View className="flex-1 items-center justify-center p-6">
+        <Text className="text-center text-red-500">{channelError}</Text>
       </View>
     );
   }
 
   if (!channel) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View className="flex-1 items-center justify-center">
         <Text className="text-gray-400">Yükleniyor...</Text>
       </View>
     );
@@ -190,6 +235,9 @@ export default function ChannelScreen() {
         loading={loading}
         error={error}
         myUserId={userId}
+        onLoadMore={loadOlderMessages}
+        loadingMore={loadingMore}
+        hasMore={hasMore}
         onRetry={() => {
           setLoading(true);
           loadMessages();

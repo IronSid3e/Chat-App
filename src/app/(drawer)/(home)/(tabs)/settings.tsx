@@ -1,11 +1,5 @@
 import React, { type ReactNode } from "react";
-import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  View,
-} from "react-native";
+import { Alert, Image, Pressable, ScrollView, View } from "react-native";
 import Text from "@/components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth, useUser } from "@clerk/clerk-expo";
@@ -21,7 +15,7 @@ import {
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <Text className="px-5 mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-white/50">
+    <Text className="mb-2 mt-6 px-5 text-xs font-semibold uppercase tracking-wide text-white/50">
       {children}
     </Text>
   );
@@ -29,7 +23,7 @@ function SectionTitle({ children }: { children: ReactNode }) {
 
 function MenuCard({ children }: { children: ReactNode }) {
   return (
-    <View className="mx-4 bg-white/10 rounded-2xl overflow-hidden border border-white/10">
+    <View className="mx-4 overflow-hidden rounded-2xl border border-white/10 bg-white/10">
       {children}
     </View>
   );
@@ -58,8 +52,8 @@ function MenuItem({ icon, label, onPress, destructive, right }: MenuItemProps) {
         />
       </View>
       <Text
-        className={`flex-1 ml-3 text-base ${
-          destructive ? "text-red-400 font-medium" : "text-white"
+        className={`ml-3 flex-1 text-base ${
+          destructive ? "font-medium text-red-400" : "text-white"
         }`}
       >
         {label}
@@ -72,7 +66,7 @@ function MenuItem({ icon, label, onPress, destructive, right }: MenuItemProps) {
 }
 
 function Divider() {
-  return <View className="h-px bg-white/10 ml-[60px]" />;
+  return <View className="ml-[60px] h-px bg-white/10" />;
 }
 
 function isLightColor(hex: string): boolean {
@@ -98,7 +92,7 @@ function ColorPicker<T extends string>({
 }: ColorPickerProps<T>) {
   return (
     <View className="px-4 py-4">
-      <Text className="text-sm font-medium text-white mb-3">{title}</Text>
+      <Text className="mb-3 text-sm font-medium text-white">{title}</Text>
       <View className="flex-row flex-wrap gap-2.5">
         {(Object.keys(colors) as T[]).map((key) => {
           const hex = colors[key];
@@ -107,13 +101,13 @@ function ColorPicker<T extends string>({
             <Pressable
               key={key}
               onPress={() => onChange(key)}
-              className={`w-10 h-10 rounded-full items-center justify-center border-2 ${
+              className={`h-10 w-10 items-center justify-center rounded-full border-2 ${
                 selected ? "border-white" : "border-transparent"
               }`}
             >
               <View
                 style={{ backgroundColor: hex }}
-                className="w-8 h-8 rounded-full items-center justify-center"
+                className="h-8 w-8 items-center justify-center rounded-full"
               >
                 {selected && (
                   <Feather
@@ -156,13 +150,14 @@ export default function SettingsScreen() {
     );
   };
 
-  const fullName = user?.fullName ?? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
+  const fullName =
+    user?.fullName ?? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
   const avatar = user?.imageUrl;
 
   return (
     <SafeAreaView className="flex-1">
-      <View className="px-5 pt-4 pb-3">
+      <View className="px-5 pb-3 pt-4">
         <Text className="text-2xl font-bold text-white">Ayarlar</Text>
       </View>
 
@@ -171,12 +166,12 @@ export default function SettingsScreen() {
         contentContainerClassName="pb-28"
         showsVerticalScrollIndicator={false}
       >
-        <View className="mx-4 mt-5 p-4 bg-white/10 rounded-2xl border border-white/10 flex-row items-center">
-          <View className="w-16 h-16 rounded-full bg-white/20 items-center justify-center overflow-hidden">
+        <View className="mx-4 mt-5 flex-row items-center rounded-2xl border border-white/10 bg-white/10 p-4">
+          <View className="h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white/20">
             {avatar ? (
               <Image
                 source={{ uri: avatar }}
-                className="w-16 h-16 rounded-full"
+                className="h-16 w-16 rounded-full"
               />
             ) : (
               <Text className="text-2xl font-bold text-white">
@@ -184,11 +179,11 @@ export default function SettingsScreen() {
               </Text>
             )}
           </View>
-          <View className="flex-1 ml-4">
+          <View className="ml-4 flex-1">
             <Text className="text-lg font-bold text-white">
               {fullName || "Misafir"}
             </Text>
-            <Text className="text-sm text-white/60 mt-0.5">
+            <Text className="mt-0.5 text-sm text-white/60">
               {email || "E-posta yok"}
             </Text>
           </View>
@@ -197,18 +192,18 @@ export default function SettingsScreen() {
         <SectionTitle>Sohbet</SectionTitle>
         <MenuCard>
           <View className="px-4 py-4">
-            <Text className="text-sm font-medium text-white mb-3">
+            <Text className="mb-3 text-sm font-medium text-white">
               Mesaj Önizlemesi
             </Text>
             <View className="gap-2">
               <View
-                className="self-start max-w-[80%] rounded-2xl rounded-bl-none px-3.5 py-2 border border-white/20"
+                className="max-w-[80%] self-start rounded-2xl rounded-bl-none border border-white/20 px-3.5 py-2"
                 style={{ backgroundColor: otherColor }}
               >
                 <Text className="text-gray-900">Selam, nasılsın?</Text>
               </View>
               <View
-                className="self-end max-w-[80%] rounded-2xl rounded-br-none px-3.5 py-2"
+                className="max-w-[80%] self-end rounded-2xl rounded-br-none px-3.5 py-2"
                 style={{ backgroundColor: ownColor }}
               >
                 <Text className="text-white">İyiyim, teşekkürler!</Text>
@@ -234,14 +229,13 @@ export default function SettingsScreen() {
         <SectionTitle>Tema Rengi</SectionTitle>
         <MenuCard>
           <View className="px-4 py-4">
-            <Text className="text-sm font-medium text-white mb-3">
+            <Text className="mb-3 text-sm font-medium text-white">
               Arka plan gradyanı
             </Text>
             <View className="flex-row flex-wrap gap-2.5">
               {GRADIENT_PRESETS.map((preset) => {
                 const selected =
-                  settings.gradientColors.join(",") ===
-                  preset.colors.join(",");
+                  settings.gradientColors.join(",") === preset.colors.join(",");
                 return (
                   <Pressable
                     key={preset.name}
@@ -254,7 +248,7 @@ export default function SettingsScreen() {
                       colors={preset.colors as [string, string, ...string[]]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
-                      className="w-14 h-14 rounded-2xl items-center justify-center border-2"
+                      className="h-14 w-14 items-center justify-center rounded-2xl border-2"
                       style={{
                         borderColor: selected ? "#ffffff" : "transparent",
                       }}
@@ -263,7 +257,7 @@ export default function SettingsScreen() {
                         <Feather name="check" size={20} color="#ffffff" />
                       )}
                     </LinearGradient>
-                    <Text className="text-xs text-white/60 mt-1.5">
+                    <Text className="mt-1.5 text-xs text-white/60">
                       {preset.name}
                     </Text>
                   </Pressable>
@@ -300,13 +294,11 @@ export default function SettingsScreen() {
           <MenuItem
             icon="bell"
             label="Bildirimler"
-            right={
-              <Text className="text-sm text-white/60">Açık</Text>
-            }
+            right={<Text className="text-sm text-white/60">Açık</Text>}
           />
         </MenuCard>
 
-        <Text className="text-center text-xs text-white/40 mt-8">
+        <Text className="mt-8 text-center text-xs text-white/40">
           ChatApp • {Constants.expoConfig?.version ?? "1.0.0"}
         </Text>
       </ScrollView>

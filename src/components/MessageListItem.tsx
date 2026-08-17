@@ -4,7 +4,6 @@ import Text from "./AppText";
 import React, { memo, useEffect, useRef } from "react";
 import { Message } from "@/types";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
 import {
   OTHER_BUBBLE_COLORS,
   OWN_BUBBLE_COLORS,
@@ -52,9 +51,14 @@ function MessageListItem({
 
   return (
     <View
-      className={`w-full flex-row mb-2 ${
+      className={`mb-2 w-full flex-row ${
         isOwnMessage ? "justify-end" : "justify-start"
       }`}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={`${
+        isOwnMessage ? "Sen" : (message.sender?.full_name ?? "Kullanıcı")
+      }: ${message.content ?? "Fotoğraf"}, ${time}`}
     >
       <Animated.View
         className={`max-w-[80%] ${isOwnMessage ? "items-end" : "items-start"}`}
@@ -64,7 +68,7 @@ function MessageListItem({
           className={`rounded-2xl p-2 shadow-sm ${
             isOwnMessage
               ? "rounded-br-none"
-              : "border border-gray-200 rounded-bl-none"
+              : "rounded-bl-none border border-gray-200"
           }`}
           style={{
             backgroundColor: isOwnMessage
@@ -94,7 +98,7 @@ function MessageListItem({
           )}
         </View>
         <Text
-          className={`text-[10px] leading-4 text-gray-400 mt-1 ${
+          className={`mt-1 text-[10px] leading-4 text-gray-400 ${
             isOwnMessage ? "" : "pl-1"
           }`}
         >

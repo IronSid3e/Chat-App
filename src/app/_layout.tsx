@@ -1,5 +1,6 @@
 // src/app/_layout.tsx
 import "../../global.css";
+import * as Sentry from "@sentry/react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
@@ -17,6 +18,16 @@ import SupabaseProvider from "@/providers/SupabaseProvider";
 import SettingsProvider from "@/providers/SettingsProvider";
 import NotificationListener from "@/components/NotificationListener";
 import GradientBackground from "@/components/GradientBackground";
+
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    tracesSampleRate: 0.2,
+    enableNative: false,
+  });
+}
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -40,13 +51,15 @@ function RootStack() {
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace("/(auth)/sign-in");
     }
-  }, [isSignedIn, isLoaded, segments]);
+  }, [isSignedIn, isLoaded, segments, router]);
 
   if (!isLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: "#1a0e1f" }}>
         <GradientBackground />
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <ActivityIndicator size="large" color="#EA7B7B" />
         </View>
       </View>

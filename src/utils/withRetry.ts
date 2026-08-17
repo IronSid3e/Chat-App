@@ -1,4 +1,5 @@
-const TRANSIENT_ERROR_PATTERN = /JWT not yet valid|JWT expired|token has expired/i;
+const TRANSIENT_ERROR_PATTERN =
+  /JWT not yet valid|JWT expired|token has expired/i;
 
 export async function withAuthRetry<T>(
   fn: () => PromiseLike<T>,

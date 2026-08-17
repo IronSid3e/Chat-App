@@ -56,7 +56,8 @@ export default function SupabaseProvider({ children }: PropsWithChildren) {
       first_name: user.firstName ?? "",
       last_name: user.lastName ?? "",
       full_name:
-        user.fullName ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+        user.fullName ??
+        `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
       avatar_url: user.imageUrl ?? null,
     };
     supabase

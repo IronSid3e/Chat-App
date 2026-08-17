@@ -27,7 +27,9 @@ export default function StatusViewer() {
       const { data, error } = await withAuthRetry(() =>
         supabase
           .from("statuses")
-          .select("id, user_id, image_url, created_at, viewer:profiles(id, full_name, avatar_url)")
+          .select(
+            "id, user_id, image_url, created_at, viewer:profiles(id, full_name, avatar_url)",
+          )
           .eq("user_id", userId)
           .gte(
             "created_at",
@@ -75,10 +77,10 @@ export default function StatusViewer() {
 
   if (error) {
     return (
-      <View className="flex-1 bg-black justify-center items-center px-6">
-        <Text className="text-red-400 text-center mb-4">{error}</Text>
+      <View className="flex-1 items-center justify-center bg-black px-6">
+        <Text className="mb-4 text-center text-red-400">{error}</Text>
         <Pressable onPress={() => router.back()}>
-          <Text className="text-white font-semibold">Geri Dön</Text>
+          <Text className="font-semibold text-white">Geri Dön</Text>
         </Pressable>
       </View>
     );
@@ -86,7 +88,7 @@ export default function StatusViewer() {
 
   if (!current) {
     return (
-      <View className="flex-1 bg-black justify-center items-center">
+      <View className="flex-1 items-center justify-center bg-black">
         <Text className="text-white/70">Yükleniyor...</Text>
       </View>
     );
@@ -98,19 +100,27 @@ export default function StatusViewer() {
 
       <Image
         source={{ uri: current.image_url }}
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 h-full w-full"
         resizeMode="contain"
       />
 
       <View className="absolute inset-0 bg-black/30" />
 
-      <View className="absolute inset-x-0 top-0 p-4 pt-10 gap-1.5">
+      <View className="absolute inset-x-0 top-0 gap-1.5 p-4 pt-10">
         {statuses.map((s, i) => (
-          <View key={s.id} className="h-1 rounded-full bg-white/25 overflow-hidden">
+          <View
+            key={s.id}
+            className="h-1 overflow-hidden rounded-full bg-white/25"
+          >
             <View
               className="h-full bg-white"
               style={{
-                width: i < index ? "100%" : i === index ? `${progress * 100}%` : "0%",
+                width:
+                  i < index
+                    ? "100%"
+                    : i === index
+                      ? `${progress * 100}%`
+                      : "0%",
               }}
             />
           </View>
@@ -119,22 +129,20 @@ export default function StatusViewer() {
 
       <Pressable
         onPress={() => setIndex((i) => Math.max(0, i - 1))}
-        className="absolute left-0 top-0 bottom-0 w-1/2 z-10"
+        className="absolute bottom-0 left-0 top-0 z-10 w-1/2"
       />
 
       <Pressable
-        onPress={() =>
-          setIndex((i) => Math.min(statuses.length - 1, i + 1))
-        }
-        className="absolute right-0 top-0 bottom-0 w-1/2 z-10"
+        onPress={() => setIndex((i) => Math.min(statuses.length - 1, i + 1))}
+        className="absolute bottom-0 right-0 top-0 z-10 w-1/2"
       />
 
-      <View className="absolute inset-x-0 top-0 pt-14 px-4 flex-row items-center z-20">
-        <View className="w-10 h-10 rounded-full bg-white/20 overflow-hidden">
+      <View className="absolute inset-x-0 top-0 z-20 flex-row items-center px-4 pt-14">
+        <View className="h-10 w-10 overflow-hidden rounded-full bg-white/20">
           {current.viewer?.avatar_url ? (
             <Image
               source={{ uri: current.viewer.avatar_url }}
-              className="w-full h-full"
+              className="h-full w-full"
             />
           ) : (
             <View className="flex-1 items-center justify-center">
@@ -144,12 +152,10 @@ export default function StatusViewer() {
             </View>
           )}
         </View>
-        <Text className="text-white font-semibold ml-3 flex-1">
+        <Text className="ml-3 flex-1 font-semibold text-white">
           {current.viewer?.full_name}
         </Text>
-        {isOwn && (
-          <Text className="text-white/80 text-xs mr-3">Sen</Text>
-        )}
+        {isOwn && <Text className="mr-3 text-xs text-white/80">Sen</Text>}
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="close" size={28} color="white" />
         </Pressable>

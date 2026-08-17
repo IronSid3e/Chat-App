@@ -14,7 +14,10 @@ export type Channel = {
   is_direct_message: boolean;
   avatar_url: string | null;
   created_at: string;
-  last_message?: Pick<Message, "id" | "content" | "image_url" | "created_at"> | null;
+  last_message?: Pick<
+    Message,
+    "id" | "content" | "image_url" | "created_at"
+  > | null;
 };
 
 export type Message = {

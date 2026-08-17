@@ -96,9 +96,10 @@ function resolveFontFamily(
   return { fontFamily: INTER_FONT_BY_WEIGHT[key], fontWeight: key };
 }
 
-function getClassNameTypography(
-  className?: string,
-): { fontSize?: number; hasBundledLineHeight: boolean } {
+function getClassNameTypography(className?: string): {
+  fontSize?: number;
+  hasBundledLineHeight: boolean;
+} {
   if (!className) return { hasBundledLineHeight: false };
   const tokens = className.split(/\s+/);
   let fontSize: number | undefined;
@@ -131,7 +132,9 @@ export default function AppText({
 
   const flatStyle = StyleSheet.flatten(style);
   const fontSize =
-    typeof flatStyle?.fontSize === "number" ? flatStyle.fontSize : classFontSize;
+    typeof flatStyle?.fontSize === "number"
+      ? flatStyle.fontSize
+      : classFontSize;
   const hasLineHeight =
     typeof flatStyle?.lineHeight === "number" || hasBundledLineHeight;
   const lineHeight =

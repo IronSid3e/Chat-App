@@ -3,7 +3,9 @@ import { StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 
 function HeaderBlur() {
-  return <BlurView tint="dark" intensity={45} style={StyleSheet.absoluteFill} />;
+  return (
+    <BlurView tint="dark" intensity={45} style={StyleSheet.absoluteFill} />
+  );
 }
 
 export default function HomeLayout() {

@@ -2,10 +2,10 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Image,
   Pressable,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import React, { useCallback, useEffect, useState } from "react";
 import Text from "./AppText";
 import * as ImagePicker from "expo-image-picker";
@@ -15,8 +15,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { Status } from "@/types";
 import { withAuthRetry } from "@/utils/withRetry";
+import { compressImageForUpload } from "@/utils/image";
 
-type StatusEntry = Status & { user_full_name: string; user_avatar_url: string | null };
+type StatusEntry = Status & {
+  user_full_name: string;
+  user_avatar_url: string | null;
+};
 
 const RING_COLOR = "#EA7B7B";
 
@@ -73,10 +77,7 @@ export default function StatusBar() {
     if (!userId || uploading) return;
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert(
-        "İzin gerekli",
-        "Medya kitaplığına erişim izni gerekiyor.",
-      );
+      Alert.alert("İzin gerekli", "Medya kitaplığına erişim izni gerekiyor.");
       return;
     }
 
@@ -88,22 +89,24 @@ export default function StatusBar() {
     if (result.canceled) return;
 
     const asset = result.assets[0];
-    const mimeType = asset.mimeType ?? "image/jpeg";
+    const compressed = await compressImageForUpload(asset.uri, asset.mimeType);
+    const mimeType = compressed.mimeType;
     const ext = mimeType.split("/")[1] || "jpg";
     setUploading(true);
     try {
       const path = `${userId}/status-${Date.now()}.${ext}`;
-      const arrayBuffer = await fetch(asset.uri).then((r) => r.arrayBuffer());
+      const arrayBuffer = await fetch(compressed.uri).then((r) =>
+        r.arrayBuffer(),
+      );
       const { error: uploadError } = await supabase.storage
         .from("status-images")
         .upload(path, arrayBuffer, { contentType: mimeType });
       if (uploadError) throw uploadError;
 
-      const imageUrl = supabase.storage
-        .from("status-images")
-        .getPublicUrl(path).data.publicUrl;
+      const imageUrl = supabase.storage.from("status-images").getPublicUrl(path)
+        .data.publicUrl;
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("statuses")
         .insert({ user_id: userId, image_url: imageUrl })
         .select("id")
@@ -125,26 +128,30 @@ export default function StatusBar() {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="pl-4"
-        data={[{ key: "__add__" }, ...statuses.map((s) => ({ key: s.user_id }))]}
+        data={[
+          { key: "__add__" },
+          ...statuses.map((s) => ({ key: s.user_id })),
+        ]}
         keyExtractor={(item) => item.key}
         renderItem={({ item }) => {
           if (item.key === "__add__") {
             return (
               <Pressable
                 onPress={addStatus}
-                className="items-center mr-4"
+                className="mr-4 items-center"
                 disabled={uploading}
+                accessibilityRole="button"
+                accessibilityLabel="Durum ekle"
+                accessibilityState={{ disabled: uploading }}
               >
-                <View className="w-16 h-16 rounded-full bg-white/20 items-center justify-center border-2 border-white/30">
+                <View className="h-16 w-16 items-center justify-center rounded-full border-2 border-white/30 bg-white/20">
                   {uploading ? (
                     <ActivityIndicator size="small" color="white" />
                   ) : (
                     <Ionicons name="add" size={28} color="white" />
                   )}
                 </View>
-                <Text className="text-white/80 text-xs mt-1.5">
-                  Durum ekle
-                </Text>
+                <Text className="mt-1.5 text-xs text-white/80">Durum ekle</Text>
               </Pressable>
             );
           }
@@ -154,28 +161,37 @@ export default function StatusBar() {
           return (
             <Pressable
               onPress={() => router.push(`/status/${s.user_id}`)}
-              className="items-center mr-4"
+              className="mr-4 items-center"
+              accessibilityRole="button"
+              accessibilityLabel={`${s.user_full_name} durumunu gör`}
             >
               <View
-                className="w-16 h-16 rounded-full items-center justify-center border-2"
+                className="h-16 w-16 items-center justify-center rounded-full border-2"
                 style={{ borderColor: RING_COLOR }}
               >
-                <View className="w-14 h-14 rounded-full bg-white/20 overflow-hidden">
+                <View className="h-14 w-14 overflow-hidden rounded-full bg-white/20">
                   {s.user_avatar_url ? (
                     <Image
                       source={{ uri: s.user_avatar_url }}
-                      className="w-full h-full"
+                      className="h-full w-full"
+                      contentFit="cover"
+                      transition={150}
+                      cachePolicy="memory-disk"
+                      placeholder="rgba(255,255,255,0.15)"
                     />
                   ) : (
                     <View className="flex-1 items-center justify-center">
-                      <Text className="font-bold text-xl text-white">
+                      <Text className="text-xl font-bold text-white">
                         {(s.user_full_name || "?").charAt(0).toUpperCase()}
                       </Text>
                     </View>
                   )}
                 </View>
               </View>
-              <Text className="text-white/80 text-xs mt-1.5 max-w-16" numberOfLines={1}>
+              <Text
+                className="mt-1.5 max-w-16 text-xs text-white/80"
+                numberOfLines={1}
+              >
                 {s.user_full_name.split(" ")[0]}
               </Text>
             </Pressable>

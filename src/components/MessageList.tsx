@@ -8,6 +8,7 @@ import {
 import Text from "./AppText";
 import React, { useCallback, useMemo, useRef } from "react";
 import MessageListItem from "./MessageListItem";
+import MessageListItemSkeleton from "./MessageListItemSkeleton";
 import { Message } from "@/types";
 import { format, isToday, isYesterday } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -18,11 +19,13 @@ type MessageListProps = {
   error: string | null;
   myUserId?: string | null;
   onRetry: () => void;
+  onLoadMore?: () => void;
+  loadingMore?: boolean;
+  hasMore?: boolean;
 };
 
 type Row =
-  | { type: "message"; message: Message }
-  | { type: "date"; day: string };
+  { type: "message"; message: Message } | { type: "date"; day: string };
 
 function dayLabel(date: string): string {
   const d = new Date(date);
@@ -37,6 +40,9 @@ export default function MessageList({
   error,
   myUserId,
   onRetry,
+  onLoadMore,
+  loadingMore,
+  hasMore,
 }: MessageListProps) {
   const initialIds = useRef<Set<string> | null>(null);
   if (initialIds.current === null) {
@@ -70,8 +76,8 @@ export default function MessageList({
     ({ item, index }: ListRenderItemInfo<Row>) => {
       if (item.type === "date") {
         return (
-          <View className="items-center my-3">
-            <Text className="text-xs leading-4 text-white/70 bg-white/15 px-3 py-1 rounded-full">
+          <View className="my-3 items-center">
+            <Text className="rounded-full bg-white/15 px-3 py-1 text-xs leading-4 text-white/70">
               {item.day}
             </Text>
           </View>
@@ -94,18 +100,22 @@ export default function MessageList({
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#ef4444" />
+      <View className="flex-1 justify-end px-2 pb-2">
+        {[0, 1, 2, 3].map((i) => (
+          <MessageListItemSkeleton key={i} />
+        ))}
       </View>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-red-500 text-center leading-5 mb-3">{error}</Text>
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="mb-3 text-center leading-5 text-red-500">{error}</Text>
         <Pressable onPress={onRetry}>
-          <Text className="text-blue-500 font-semibold leading-5">Tekrar Dene</Text>
+          <Text className="font-semibold leading-5 text-blue-500">
+            Tekrar Dene
+          </Text>
         </Pressable>
       </View>
     );
@@ -113,8 +123,8 @@ export default function MessageList({
 
   if (messages.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-white/60 text-center leading-5">
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-center leading-5 text-white/60">
           Henüz mesaj yok. İlk mesajı sen yaz!
         </Text>
       </View>
@@ -137,6 +147,15 @@ export default function MessageList({
       maxToRenderPerBatch={20}
       windowSize={7}
       updateCellsBatchingPeriod={50}
+      onEndReached={hasMore ? onLoadMore : undefined}
+      onEndReachedThreshold={0.3}
+      ListFooterComponent={
+        loadingMore ? (
+          <View className="items-center py-3">
+            <ActivityIndicator size="small" color="#EA7B7B" />
+          </View>
+        ) : null
+      }
     />
   );
 }

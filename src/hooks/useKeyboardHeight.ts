@@ -6,10 +6,10 @@ export function useKeyboardHeight(): number {
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", (e) =>
-      setKeyboardHeight(e.endCoordinates.height)
+      setKeyboardHeight(e.endCoordinates.height),
     );
     const hide = Keyboard.addListener("keyboardDidHide", () =>
-      setKeyboardHeight(0)
+      setKeyboardHeight(0),
     );
     return () => {
       show.remove();

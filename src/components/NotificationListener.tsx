@@ -41,7 +41,9 @@ export default function NotificationListener() {
             .eq("id", msg.channel_id)
             .maybeSingle();
 
-          const body = msg.image_url ? "Fotoğraf" : msg.content ?? "Yeni mesaj";
+          const body = msg.image_url
+            ? "Fotoğraf"
+            : (msg.content ?? "Yeni mesaj");
           notifyNewMessage(ch?.name ?? "Yeni mesaj", body);
         },
       )

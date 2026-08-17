@@ -76,47 +76,47 @@ export default function SignUpPage() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 justify-center p-5"
     >
-      <View className="bg-white/10 p-6 rounded-2xl border border-white/15">
-        <Text className="text-2xl font-bold mb-5 text-center text-white">
+      <View className="rounded-2xl border border-white/15 bg-white/10 p-6">
+        <Text className="mb-5 text-center text-2xl font-bold text-white">
           {pendingVerification ? "Kodu Doğrula" : "Yeni Hesap Oluştur"}
         </Text>
 
         {!pendingVerification ? (
           <>
-            <Text className="text-sm font-semibold text-white/80 mb-2">
+            <Text className="mb-2 text-sm font-semibold text-white/80">
               E-posta
             </Text>
             <TextInput
-              className="border border-white/20 rounded-lg p-3 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-lg border border-white/20 bg-white/10 p-3 text-base text-white"
               autoCapitalize="none"
               placeholder="email@adres.com"
               placeholderTextColor="rgba(255,255,255,0.4)"
               value={emailAddress}
               onChangeText={setEmailAddress}
             />
-            <Text className="text-sm font-semibold text-white/80 mb-2">
+            <Text className="mb-2 text-sm font-semibold text-white/80">
               Name
             </Text>
             <TextInput
-              className="border border-white/20 rounded-lg p-3 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-lg border border-white/20 bg-white/10 p-3 text-base text-white"
               placeholder="First Name"
               placeholderTextColor="rgba(255,255,255,0.4)"
               value={firstName}
               onChangeText={setFirstName}
             />
             <TextInput
-              className="border border-white/20 rounded-lg p-3 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-lg border border-white/20 bg-white/10 p-3 text-base text-white"
               placeholder="Last Name"
               placeholderTextColor="rgba(255,255,255,0.4)"
               value={lastName}
               onChangeText={setLastName}
             />
 
-            <Text className="text-sm font-semibold text-white/80 mb-2">
+            <Text className="mb-2 text-sm font-semibold text-white/80">
               Şifre
             </Text>
             <TextInput
-              className="border border-white/20 rounded-lg p-3 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-lg border border-white/20 bg-white/10 p-3 text-base text-white"
               placeholder="Minimum 8 karakter"
               placeholderTextColor="rgba(255,255,255,0.4)"
               secureTextEntry
@@ -125,7 +125,7 @@ export default function SignUpPage() {
             />
 
             <TouchableOpacity
-              className={`bg-red-500 p-4 rounded-lg items-center mt-2.5 ${
+              className={`mt-2.5 items-center rounded-lg bg-red-500 p-4 ${
                 loading ? "opacity-60" : ""
               }`}
               onPress={onSignUpPress}
@@ -134,17 +134,17 @@ export default function SignUpPage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-white text-base font-bold">Kayıt Ol</Text>
+                <Text className="text-base font-bold text-white">Kayıt Ol</Text>
               )}
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text className="text-center mb-5 text-white/60">
+            <Text className="mb-5 text-center text-white/60">
               E-postana gelen 6 haneli kodu gir.
             </Text>
             <TextInput
-              className="border border-white/20 rounded-lg p-3 text-base mb-4 bg-white/10 text-white"
+              className="mb-4 rounded-lg border border-white/20 bg-white/10 p-3 text-base text-white"
               placeholder="000000"
               placeholderTextColor="rgba(255,255,255,0.4)"
               keyboardType="numeric"
@@ -153,7 +153,7 @@ export default function SignUpPage() {
             />
 
             <TouchableOpacity
-              className={`bg-red-500 p-4 rounded-lg items-center mt-2.5 ${
+              className={`mt-2.5 items-center rounded-lg bg-red-500 p-4 ${
                 loading ? "opacity-60" : ""
               }`}
               onPress={onVerifyPress}
@@ -162,7 +162,7 @@ export default function SignUpPage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-white text-base font-bold">
+                <Text className="text-base font-bold text-white">
                   Doğrula ve Bitir
                 </Text>
               )}
@@ -170,11 +170,11 @@ export default function SignUpPage() {
           </>
         )}
 
-        <View className="flex-row justify-center mt-5">
+        <View className="mt-5 flex-row justify-center">
           <Text className="text-white/70">Zaten bir hesabın var mı? </Text>
           <Link href="/sign-in" asChild>
             <TouchableOpacity>
-              <Text className="text-sky-400 font-bold">Giriş Yap</Text>
+              <Text className="font-bold text-sky-400">Giriş Yap</Text>
             </TouchableOpacity>
           </Link>
         </View>

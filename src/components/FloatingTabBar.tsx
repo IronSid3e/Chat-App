@@ -42,10 +42,11 @@ function TabButton({ onPress, active, tint, icon, label }: TabButtonProps) {
       onPressOut={pressOut}
       android_ripple={{ color: "rgba(255,255,255,0.08)" }}
       style={styles.tab}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={label}
     >
-      <Animated.View
-        style={[styles.tabInner, { transform: [{ scale }] }]}
-      >
+      <Animated.View style={[styles.tabInner, { transform: [{ scale }] }]}>
         {icon}
         <Text
           style={[
@@ -85,9 +86,7 @@ export default function FloatingTabBar({
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const tint = isFocused
-            ? "#FFFFFF"
-            : "rgba(255,255,255,0.5)";
+          const tint = isFocused ? "#FFFFFF" : "rgba(255,255,255,0.5)";
 
           const onPress = () => {
             const event = navigation.emit({

@@ -9,11 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          "Inter_400Regular",
-          "Inter_500Medium",
-          "Inter_600SemiBold",
-        ],
+        sans: ["Inter_400Regular", "Inter_500Medium", "Inter_600SemiBold"],
       },
     },
   },

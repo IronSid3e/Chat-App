@@ -65,7 +65,7 @@ export default function UserList() {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" color="#ef4444" />
       </View>
     );
@@ -73,15 +73,15 @@ export default function UserList() {
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-red-500 text-center mb-3">{error}</Text>
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="mb-3 text-center text-red-500">{error}</Text>
         <Pressable
           onPress={() => {
             setLoading(true);
             loadUsers();
           }}
         >
-          <Text className="text-blue-500 font-semibold">Tekrar Dene</Text>
+          <Text className="font-semibold text-blue-500">Tekrar Dene</Text>
         </Pressable>
       </View>
     );
@@ -89,8 +89,8 @@ export default function UserList() {
 
   if (users.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-gray-400 text-center">
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-center text-gray-400">
           Başka kullanıcı bulunamadı.
         </Text>
       </View>

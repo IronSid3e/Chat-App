@@ -1,4 +1,5 @@
-import { Image, View, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
+import { Image } from "expo-image";
 import React, { memo } from "react";
 import Text from "./AppText";
 import { Channel } from "@/types";
@@ -12,16 +13,24 @@ type ChannelListItemProps = {
 function ChannelListItem({ channel }: ChannelListItemProps) {
   return (
     <Link href={`/channel/${channel.id}`} asChild>
-      <Pressable className="flex-row items-center px-4 py-3 border-b border-white/10">
+      <Pressable
+        className="flex-row items-center border-b border-white/10 px-4 py-3"
+        accessibilityRole="button"
+        accessibilityLabel={`${channel.name} kanalını aç`}
+      >
         <Image
-          source={{ uri: channel.avatar_url ?? undefined }}
-          className="w-14 h-14 rounded-full mr-4 bg-white/20"
+          source={channel.avatar_url ? { uri: channel.avatar_url } : undefined}
+          className="mr-4 h-14 w-14 rounded-full bg-white/20"
+          contentFit="cover"
+          transition={150}
+          cachePolicy="memory-disk"
+          placeholder="rgba(255,255,255,0.15)"
         />
 
         <View className="flex-1 justify-center">
-          <View className="flex-row justify-between items-center mb-1">
+          <View className="mb-1 flex-row items-center justify-between">
             <Text
-              className="font-semibold text-base leading-7 text-white flex-1 mr-2"
+              className="mr-2 flex-1 text-base font-semibold leading-7 text-white"
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -35,11 +44,17 @@ function ChannelListItem({ channel }: ChannelListItemProps) {
             )}
           </View>
 
-          <View className="flex-row justify-between items-center">
-            <Text className="text-sm leading-5 text-white/70 flex-1" numberOfLines={2} ellipsizeMode="tail">
+          <View className="flex-row items-center justify-between">
+            <Text
+              className="flex-1 text-sm leading-5 text-white/70"
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {channel.last_message
-                ? channel.last_message.content ??
-                  (channel.last_message.image_url ? "Fotoğraf" : "Henüz mesaj yok")
+                ? (channel.last_message.content ??
+                  (channel.last_message.image_url
+                    ? "Fotoğraf"
+                    : "Henüz mesaj yok"))
                 : "Henüz mesaj yok"}
             </Text>
           </View>
