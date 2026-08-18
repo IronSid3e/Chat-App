@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Text from "@/components/AppText";
+import Avatar from "@/components/Avatar";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { Status } from "@/types";
 import { withAuthRetry } from "@/utils/withRetry";
@@ -138,19 +139,12 @@ export default function StatusViewer() {
       />
 
       <View className="absolute inset-x-0 top-0 z-20 flex-row items-center px-4 pt-14">
-        <View className="h-10 w-10 overflow-hidden rounded-full bg-white/20">
-          {current.viewer?.avatar_url ? (
-            <Image
-              source={{ uri: current.viewer.avatar_url }}
-              className="h-full w-full"
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center">
-              <Text className="font-bold text-white">
-                {(current.viewer?.full_name || "?").charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
+        <View className="h-10 w-10 overflow-hidden rounded-full">
+          <Avatar
+            uri={current.viewer?.avatar_url}
+            name={current.viewer?.full_name ?? "?"}
+            size={40}
+          />
         </View>
         <Text className="ml-3 flex-1 font-semibold text-white">
           {current.viewer?.full_name}

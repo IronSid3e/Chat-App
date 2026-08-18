@@ -5,9 +5,9 @@ import {
   Pressable,
   View,
 } from "react-native";
-import { Image } from "expo-image";
 import React, { useCallback, useEffect, useState } from "react";
 import Text from "./AppText";
+import Avatar from "./Avatar";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
@@ -169,23 +169,12 @@ export default function StatusBar() {
                 className="h-16 w-16 items-center justify-center rounded-full border-2"
                 style={{ borderColor: RING_COLOR }}
               >
-                <View className="h-14 w-14 overflow-hidden rounded-full bg-white/20">
-                  {s.user_avatar_url ? (
-                    <Image
-                      source={{ uri: s.user_avatar_url }}
-                      className="h-full w-full"
-                      contentFit="cover"
-                      transition={150}
-                      cachePolicy="memory-disk"
-                      placeholder="rgba(255,255,255,0.15)"
-                    />
-                  ) : (
-                    <View className="flex-1 items-center justify-center">
-                      <Text className="text-xl font-bold text-white">
-                        {(s.user_full_name || "?").charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                  )}
+                <View className="h-14 w-14 overflow-hidden rounded-full">
+                  <Avatar
+                    uri={s.user_avatar_url}
+                    name={s.user_full_name}
+                    size={56}
+                  />
                 </View>
               </View>
               <Text

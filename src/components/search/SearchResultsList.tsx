@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable, SectionList, View } from "react-native";
-import { Image } from "expo-image";
 import React from "react";
 import Text from "@/components/AppText";
+import Avatar from "@/components/Avatar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { formatMessageTime } from "@/utils/formatMessageTime";
 import { User } from "@/types";
@@ -42,22 +42,11 @@ export default function SearchResultsList({
           onPress={() => onUserPress(item.user)}
           className="flex-row items-center border-b border-white/10 p-4"
         >
-          <View className="h-12 w-12 items-center justify-center rounded-full bg-white/20">
-            {item.user.avatar_url ? (
-              <Image
-                source={{ uri: item.user.avatar_url }}
-                className="h-12 w-12 rounded-full"
-                contentFit="cover"
-                transition={150}
-                cachePolicy="memory-disk"
-                placeholder="rgba(255,255,255,0.15)"
-              />
-            ) : (
-              <Text className="text-2xl font-bold text-white">
-                {(item.user.first_name || "?").charAt(0).toUpperCase()}
-              </Text>
-            )}
-          </View>
+          <Avatar
+            uri={item.user.avatar_url}
+            name={`${item.user.first_name} ${item.user.last_name}`}
+            size={48}
+          />
           <Text className="ml-3 flex-1 text-lg font-medium text-white">
             {item.user.first_name} {item.user.last_name}
           </Text>

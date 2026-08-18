@@ -121,34 +121,34 @@ export default function ChannelScreen() {
     setLoading(true);
     const handle = InteractionManager.runAfterInteractions(() => {
       loadMessages();
-
-      if (!id) return;
-      const channelSub = supabase
-        .channel(`messages:${id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "messages",
-            filter: `channel_id=eq.${id}`,
-          },
-          (payload) => {
-            const newMessage = payload.new as Message;
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === newMessage.id)) return prev;
-              return [newMessage, ...prev];
-            });
-          },
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channelSub);
-      };
     });
 
-    return () => handle.cancel();
+    if (!id) return () => handle.cancel();
+
+    const channelSub = supabase
+      .channel(`messages:${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `channel_id=eq.${id}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMessage.id)) return prev;
+            return [newMessage, ...prev];
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      handle.cancel();
+      supabase.removeChannel(channelSub);
+    };
   }, [supabase, id, loadMessages]);
 
   const sendMessage = useCallback(

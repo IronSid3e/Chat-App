@@ -1,7 +1,7 @@
 import { View, Pressable } from "react-native";
-import { Image } from "expo-image";
 import React, { memo } from "react";
 import Text from "./AppText";
+import Avatar from "./Avatar";
 import { Channel } from "@/types";
 import { formatMessageTime } from "@/utils/formatMessageTime";
 import { Link } from "expo-router";
@@ -18,13 +18,11 @@ function ChannelListItem({ channel }: ChannelListItemProps) {
         accessibilityRole="button"
         accessibilityLabel={`${channel.name} kanalını aç`}
       >
-        <Image
-          source={channel.avatar_url ? { uri: channel.avatar_url } : undefined}
-          className="mr-4 h-14 w-14 rounded-full bg-white/20"
-          contentFit="cover"
-          transition={150}
-          cachePolicy="memory-disk"
-          placeholder="rgba(255,255,255,0.15)"
+        <Avatar
+          uri={channel.avatar_url}
+          name={channel.name}
+          size={56}
+          style={{ marginRight: 16 }}
         />
 
         <View className="flex-1 justify-center">
