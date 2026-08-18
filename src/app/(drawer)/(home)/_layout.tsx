@@ -19,6 +19,8 @@ export default function HomeLayout() {
           headerTintColor: "#ffffff",
           headerBackground: () => <HeaderBlur />,
           title: "",
+          animation: "slide_from_right",
+          animationDuration: 280,
         }}
       />
       <Stack.Screen

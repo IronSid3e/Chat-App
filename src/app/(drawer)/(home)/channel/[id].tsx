@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { InteractionManager, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import Text from "@/components/AppText";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -39,18 +39,21 @@ export default function ChannelScreen() {
 
   useEffect(() => {
     if (!id) return;
-    supabase
-      .from("channels")
-      .select("*")
-      .eq("id", id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          setChannelError(error.message);
-        } else {
-          setChannel(data);
-        }
-      });
+    const handle = InteractionManager.runAfterInteractions(() => {
+      supabase
+        .from("channels")
+        .select("*")
+        .eq("id", id)
+        .single()
+        .then(({ data, error }) => {
+          if (error) {
+            setChannelError(error.message);
+          } else {
+            setChannel(data);
+          }
+        });
+    });
+    return () => handle.cancel();
   }, [id, supabase]);
 
   const loadMessages = useCallback(async () => {
@@ -116,32 +119,36 @@ export default function ChannelScreen() {
 
   useEffect(() => {
     setLoading(true);
-    loadMessages();
+    const handle = InteractionManager.runAfterInteractions(() => {
+      loadMessages();
 
-    if (!id) return;
-    const channelSub = supabase
-      .channel(`messages:${id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `channel_id=eq.${id}`,
-        },
-        (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMessage.id)) return prev;
-            return [newMessage, ...prev];
-          });
-        },
-      )
-      .subscribe();
+      if (!id) return;
+      const channelSub = supabase
+        .channel(`messages:${id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `channel_id=eq.${id}`,
+          },
+          (payload) => {
+            const newMessage = payload.new as Message;
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMessage.id)) return prev;
+              return [newMessage, ...prev];
+            });
+          },
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channelSub);
-    };
+      return () => {
+        supabase.removeChannel(channelSub);
+      };
+    });
+
+    return () => handle.cancel();
   }, [supabase, id, loadMessages]);
 
   const sendMessage = useCallback(

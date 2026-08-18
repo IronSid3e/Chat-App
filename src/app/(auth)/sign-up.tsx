@@ -57,7 +57,7 @@ export default function SignUpPage() {
 
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
-        router.replace("/drawer/");
+        router.replace("/(drawer)/(home)/(tabs)/chats");
       }
     } catch (err: any) {
       alert(err.errors?.[0]?.message || "Kod hatalı.");
@@ -67,7 +67,7 @@ export default function SignUpPage() {
   };
 
   if (isSignedIn) {
-    router.replace("/drawer/");
+    router.replace("/(drawer)/(home)/(tabs)/chats");
     return null;
   }
 
